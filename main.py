@@ -80,9 +80,19 @@ async def get_leftover_ratio(file: UploadFile = File(...)):
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
-        ratio = calculate_leftover_ratio(image)
+        try:
+            ratio = calculate_leftover_ratio(image)
+        except Exception as model_err:
+            import traceback
+            tb = traceback.format_exc()
+            print("MODEL ERROR:", tb)
+            return {
+                "error": "모델 결과 반환 중 에러 발생",
+                "detail": str(e)
+                "traceback": tb
+            }
         return {"leftover_ratio": float(ratio)}
     except Exception as e:
         import traceback
-        print(traceback.format_exc())
+        print("GENERAL ERROR: ", traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"이미지 처리 중 오류 발생: {e}")
