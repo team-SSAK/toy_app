@@ -88,7 +88,7 @@ async def get_leftover_ratio(file: UploadFile = File(...)):
             print("MODEL ERROR:", tb)
             return {
                 "error": "모델 결과 반환 중 에러 발생",
-                "detail": str(e),
+                "detail": str(model_err),
                 "traceback": tb
             }
         return {"leftover_ratio": float(ratio)}
