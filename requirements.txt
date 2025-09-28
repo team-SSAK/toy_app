@@ -3,5 +3,5 @@ uvicorn[standard]
 python-multipart
 numpy
 opencv-python-headless
-ultralytics
+ultralytics==8.0.227
 Pillow

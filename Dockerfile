@@ -1,23 +1,27 @@
-# 1. Python 3.10 slim 버전 사용 (가볍고 안정적)
-FROM python:3.10-slim
+# 1. 베이스 이미지: Python 3.11 slim (CPU 전용)
+FROM python:3.11-slim
 
-# 2. 작업 디렉토리 설정
-WORKDIR /app
-
-# 3. 시스템 의존성 설치 (opencv, numpy 등 빌드에 필요)
+# 2. 필수 OS 패키지 설치
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    gcc \
-    libgl1 \
+    build-essential \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. requirements 설치
+# 3. 작업 디렉토리 설정
+WORKDIR /app
+
+# 4. requirements.txt 복사 및 설치
 COPY requirements.txt .
+# CPU 전용 torch 설치
+RUN pip install --no-cache-dir torch==2.3.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. 소스 복사
+# 5. 소스 코드 복사
 COPY . .
 
-# 6. 컨테이너 시작 시 실행할 명령어
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 6. 모델 경로 확인 (선택)
+# RUN ls models
+
+# 7. FastAPI 실행
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
