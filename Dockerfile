@@ -14,7 +14,7 @@ WORKDIR /app
 # 4. requirements.txt 복사 및 설치
 COPY requirements.txt .
 # CPU 전용 torch 설치
-RUN pip install --no-cache-dir torch==2.3.1+cpu torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir torch==2.2.0+cpu torchvision==0.17.1+cpu --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 5. 소스 코드 복사
