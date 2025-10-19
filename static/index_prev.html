@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>잔반 비율 분석기</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        #camera-container {
+            position: relative;
+            width: 90vw;
+            max-width: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background-color: #5dc136;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #0ca32d; }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            min-height: 30px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="camera-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display:none;"></canvas>
+    </div>
+    
+    <button id="captureButton">📸 사진 찍고 잔반 분석하기</button>
+    <div id="result">결과가 여기에 표시됩니다.</div>
+
+    <script>
+        const API_URL = '/predict/leftover_ratio';
+        // ----------------
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('captureButton');
+        const resultDiv = document.getElementById('result');
+
+        // 1. 카메라 시작 함수
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } // 후면 카메라 우선 사용
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("카메라 접근 오류:", err);
+                resultDiv.textContent = "카메라를 열 수 없습니다. 권한을 확인해주세요.";
+            }
+        }
+
+        // 2. 사진 촬영 및 API 호출 함수
+        captureButton.addEventListener('click', async () => {
+            if (!video.srcObject) {
+                alert("카메라가 준비되지 않았습니다.");
+                return;
+            }
+
+            resultDiv.textContent = '분석 중...';
+    
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+         
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('file', blob, 'capture.jpg'); 
+
+                // API 서버로 전송
+                try {
+                    const response = await fetch(API_URL.replace('YOUR_COMPUTER_IP', location.hostname), { // localhost에서 테스트할 경우를 위해 추가
+                        method: 'POST',
+                        body: formData,
+                    });
+                    
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        const percentage = (data.leftover_ratio * 100).toFixed(2);
+                        resultDiv.textContent = `잔반 비율: ${percentage}%`;
+                    } else {
+                        resultDiv.textContent = `오류: ${data.detail || '알 수 없는 에러'}`;
+                    }
+                } catch (error) {
+                    console.error("API 호출 오류:", error);
+                    resultDiv.textContent = '서버에 연결할 수 없습니다.';
+                }
+
+            }, 'image/jpeg');
+        });
+
+        // 페이지가 로드되면 카메라 시작
+        startCamera();
+    </script>
+</body>
+</html>

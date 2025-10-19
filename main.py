@@ -1,98 +1,147 @@
 import io
-import numpy as np
-import cv2
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import FileResponse 
+import os
+import torch
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
-from ultralytics import YOLO
 
+from database.schemas import UserRegister, UserLogin, UserLoginWithName, Token
+from services.auth_service import get_current_user
+from services.yolo_service import YOLOService
+from services.s3_service import S3Service
+from database.db_manager import DatabaseManager
+from database.init_db import init_database
+
+# 서비스 초기화
 MODEL_PATH = "models/yolo8m.pt"
-model = YOLO(MODEL_PATH)
+yolo_service = YOLOService(MODEL_PATH)
+s3_service = S3Service()
+db_manager = DatabaseManager()
 
-app = FastAPI(title="YOLOv8 잔반 비율 계산 API (통합 서버)")
+app = FastAPI(title="YOLOv8 잔반 비율 계산 API (모듈화 버전)")
 
+# 정적 파일 제공
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.on_event("startup")
+async def startup_event():
+    """앱 시작 시 데이터베이스 초기화"""
+    init_database()
+
+# ========== 페이지 라우트 ==========
 
 @app.get("/")
 async def read_index():
     return FileResponse('static/index.html')
 
-def calculate_leftover_ratio(image: Image.Image):
-    """
-    - 'dishes'는 항상 포함
-    - 다른 클래스는 신뢰도 0.4 이상일 때만 포함
-    """
-    results = model(image, verbose=False)
-    result = results[0]
+@app.get("/login.html")
+async def login_page():
+    """로그인 페이지"""
+    return FileResponse('static/login.html')
 
-    if result.masks is None or result.boxes is None:
-        return 0.0
+# ========== API 엔드포인트 ==========
 
-    h, w = result.orig_shape
-    leftover_mask = np.zeros((h, w), dtype=bool)
-    dish_mask = np.zeros((h, w), dtype=bool)
+@app.post("/api/register")
+async def register(user: UserRegister):
+    """회원가입"""
+    try:
+        db_manager.create_user(user.name, user.phoneNum, user.accountId)
+        return {"message": "회원가입이 완료되었습니다."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    for i in range(len(result.boxes)):
-        class_id = int(result.boxes.cls[i])
-        class_name = result.names[class_id]
-        confidence = float(result.boxes.conf[i])
+@app.post("/api/login", response_model=Token)
+async def login(user: UserLogin):
+    """로그인 (전화번호만)"""
+    try:
+        token = db_manager.login_user(user.phoneNum)
+        return {"access_token": token, "token_type": "bearer"}
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-        # 필터링 로직: dishes는 무조건, 나머지는 신뢰도 0.4 이상
-        is_kept = False
-        if class_name == "dishes":
-            is_kept = True
-        elif class_name == "leftovers" and confidence >= 0.4:
-            is_kept = True
+@app.post("/api/login/with-name", response_model=Token)
+async def login_with_name(user: UserLoginWithName):
+    """로그인 (이름 + 전화번호)"""
+    try:
+        token = db_manager.login_user_with_name(user.name, user.phoneNum)
+        return {"access_token": token, "token_type": "bearer"}
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/predict")
+async def predict_with_save(
+    file: UploadFile = File(...),
+    user_id: int = Depends(get_current_user)
+):
+    """잔반 비율 측정 및 결과 저장 (인증 필요)"""
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="이미지 파일이 아닙니다.")
+
+    try:
+        # 이미지 읽기
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
         
-        if not is_kept:
-            continue
+        # 잔반 비율 계산
+        ratio = yolo_service.calculate_leftover_ratio(image)
+        
+        # S3에 이미지 업로드
+        image_url = s3_service.upload_image(contents)
+        
+        # DB에 결과 저장
+        measurement_id = db_manager.save_measurement(user_id, image_url, ratio)
+        
+        return {
+            "measurement_id": measurement_id,
+            "leftover_ratio": float(ratio),
+            "image_url": image_url
+        }
+    except Exception as e:
+        import traceback
+        print("ERROR:", traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"처리 중 오류 발생: {e}")
 
-        # 필터링 통과한 객체의 마스크 처리
-        instance_mask_tensor = result.masks.data[i]
-        instance_mask_np = instance_mask_tensor.cpu().numpy().astype(np.uint8)
-        instance_mask_resized = cv2.resize(instance_mask_np, (w, h)).astype(bool)
+@app.get("/api/history")
+async def get_history(user_id: int = Depends(get_current_user)):
+    """사용자의 측정 이력 조회"""
+    try:
+        history = db_manager.get_user_history(user_id)
+        return {"history": history}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-        if class_name == "leftovers":
-            leftover_mask |= instance_mask_resized
-        elif class_name == "dishes":
-            dish_mask |= instance_mask_resized
+@app.get("/api/user/info")
+async def get_user_info(user_id: int = Depends(get_current_user)):
+    """사용자 정보 조회"""
+    try:
+        user_info = db_manager.get_user_info(user_id)
+        if not user_info:
+            raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+        return user_info
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    # 겹치는 영역 처리: 그릇 영역에서 잔반 영역은 제외
-    final_dish_mask = dish_mask & (~leftover_mask)
-
-    leftover_pixels = np.sum(leftover_mask)
-    dishes_pixels = np.sum(final_dish_mask)
-    total_dish_area = leftover_pixels + dishes_pixels
-
-    if total_dish_area == 0:
-        return 0.0
-
-    ratio = (leftover_pixels / total_dish_area)
-    return ratio
-
-# --- API 엔드포인트 생성 ---
 @app.post("/predict/leftover_ratio")
 async def get_leftover_ratio(file: UploadFile = File(...)):
+    """레거시 API - 인증 없이 잔반 비율만 반환"""
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="이미지 파일이 아닙니다.")
 
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
-        try:
-            ratio = calculate_leftover_ratio(image)
-        except Exception as model_err:
-            import traceback
-            tb = traceback.format_exc()
-            print("MODEL ERROR:", tb)
-            return {
-                "error": "모델 결과 반환 중 에러 발생",
-                "detail": str(model_err),
-                "traceback": tb
-            }
+        ratio = yolo_service.calculate_leftover_ratio(image)
         return {"leftover_ratio": float(ratio)}
     except Exception as e:
         import traceback
-        print("GENERAL ERROR: ", traceback.format_exc())
+        print("ERROR:", traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"이미지 처리 중 오류 발생: {e}")

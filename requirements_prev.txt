@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+python-multipart
+opencv-python-headless
+ultralytics
+Pillow
+numpy==1.26.4
