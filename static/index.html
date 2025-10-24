@@ -254,6 +254,45 @@
             padding: 30px;
             color: #a0aec0;
         }
+
+        .contact-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .contact-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #2d3748;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .contact-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
+        }
+
+        .contact-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -263,7 +302,7 @@
             <h1>잔반 측정 시스템</h1>
         </div>
         <div class="user-info" id="userInfo">
-            <button class="login-btn" onclick="goToLogin()">로그인</button>
+            <button class="login-btn" onclick="goToLogin()">제출하기</button>
         </div>
     </div>
 
@@ -289,6 +328,13 @@
 
         <div class="result-section" id="resultSection">
             <div class="loading">🔍 AI가 분석 중입니다...</div>
+        </div>
+
+        <div class="contact-card">
+            <div class="contact-title">💬 싹 캠페인 문의사항</div>
+            <a href="https://open.kakao.com/o/soNqUYXh" target="_blank" class="contact-link">
+                카카오톡 오픈채팅 문의하기
+            </a>
         </div>
     </div>
 
@@ -377,7 +423,7 @@
                         const token = localStorage.getItem('access_token');
                         const saveButton = token 
                             ? `<button class="save-btn" onclick="saveResult()">💾 측정 결과 저장하기</button>`
-                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 로그인하고 저장하기</button>`;
+                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 제출하기</button>`;
 
                         resultSection.classList.add('has-result');
                         resultSection.innerHTML = `
@@ -408,7 +454,7 @@
 
             const token = localStorage.getItem('access_token');
             if (!token) {
-                alert('로그인이 필요합니다.');
+                alert('제출하시겠습니까?');
                 goToLoginAndSave();
                 return;
             }
@@ -453,7 +499,6 @@
         // 로그인 페이지로 이동 (결과 저장용)
         function goToLoginAndSave() {
             if (!currentResultData) {
-                goToLogin();
                 return;
             }
 
@@ -465,7 +510,7 @@
                     imageBase64: e.target.result
                 }));
                 
-                if (confirm('로그인 후 측정 결과를 저장할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?')) {
+                if (confirm('제출하시겠습니까?')) {
                     window.location.href = '/login';
                 }
             };
