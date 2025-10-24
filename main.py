@@ -35,7 +35,7 @@ async def startup_event():
 async def read_index():
     return FileResponse('static/index.html')
 
-@app.get("/login.html")
+@app.get("/login")
 async def login_page():
     """로그인 페이지"""
     return FileResponse('static/login.html')

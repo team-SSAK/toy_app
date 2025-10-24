@@ -57,7 +57,7 @@
             font-size: 16px;
         }
 
-        .login-btn, .logout-btn {
+        .logout-btn {
             background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
             color: white;
             border: none;
@@ -70,7 +70,7 @@
             box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
         }
 
-        .login-btn:hover, .logout-btn:hover {
+        .logout-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
         }
@@ -106,38 +106,6 @@
             width: 100%;
             height: auto;
             display: block;
-        }
-
-        .camera-guide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            color: white;
-            padding: 15px;
-            text-align: center;
-            z-index: 10;
-        }
-
-        .guide-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #a8e063;
-        }
-
-        .guide-item {
-            font-size: 13px;
-            margin: 5px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .guide-icon {
-            font-size: 16px;
         }
 
         canvas {
@@ -178,11 +146,9 @@
             width: 100%;
             text-align: center;
             min-height: 100px;
-            display: none;
-        }
-
-        .result-section.show {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .result-section.has-result {
@@ -210,43 +176,57 @@
             font-size: 16px;
             line-height: 1.6;
             white-space: pre-line;
-            margin-bottom: 20px;
-        }
-
-        .save-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid rgba(255,255,255,0.3);
-        }
-
-        .save-message {
-            font-size: 15px;
-            margin-bottom: 15px;
-        }
-
-        .save-btn {
-            width: 100%;
-            padding: 15px;
-            background: white;
-            color: #56ab2f;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .save-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         .loading {
             font-size: 18px;
-            color: #a0aec0;
+            color: #56ab2f;
             font-weight: 600;
-            padding: 30px;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .history-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-date {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .history-ratio {
+            font-size: 18px;
+            font-weight: 700;
+            color: #56ab2f;
         }
 
         .empty-state {
@@ -262,25 +242,15 @@
             <span class="eco-badge">🌱</span>
             <h1>잔반 측정 시스템</h1>
         </div>
-        <div class="user-info" id="userInfo">
-            <button class="login-btn" onclick="goToLogin()">로그인</button>
+        <div class="user-info">
+            <span class="user-name" id="userName"></span>
+            <button class="logout-btn" onclick="logout()">로그아웃</button>
         </div>
     </div>
 
     <div class="container">
         <div class="camera-card">
             <div id="camera-container">
-                <div class="camera-guide">
-                    <div class="guide-title">📸 촬영 가이드</div>
-                    <div class="guide-item">
-                        <span class="guide-icon">⚠️</span>
-                        <span>한 번에 한 개의 그릇만 찍어주세요</span>
-                    </div>
-                    <div class="guide-item">
-                        <span class="guide-icon">🔍</span>
-                        <span>그릇이 최대한 크게 보이도록 촬영</span>
-                    </div>
-                </div>
                 <video id="video" autoplay playsinline></video>
                 <canvas id="canvas"></canvas>
             </div>
@@ -288,7 +258,14 @@
         </div>
 
         <div class="result-section" id="resultSection">
-            <div class="loading">🔍 AI가 분석 중입니다...</div>
+            <div class="result-title">결과가 여기에 표시됩니다</div>
+        </div>
+
+        <div class="history-card">
+            <div class="history-title">📜 최근 측정 이력</div>
+            <div id="historyList">
+                <div class="empty-state">측정 이력이 없습니다</div>
+            </div>
         </div>
     </div>
 
@@ -299,27 +276,20 @@
         const captureButton = document.getElementById('captureButton');
         const resultSection = document.getElementById('resultSection');
 
-        let currentResultData = null;
-
-        // 페이지 로드 시
-        window.addEventListener('DOMContentLoaded', () => {
-            checkLoginStatus();
-            startCamera();
-            processPendingResult();
-        });
-
-        // 로그인 상태 확인
-        function checkLoginStatus() {
+        // 페이지 로드 시 인증 확인 및 카메라 시작
+        window.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('access_token');
             const userName = localStorage.getItem('user_name');
 
-            if (token && userName) {
-                document.getElementById('userInfo').innerHTML = `
-                    <span class="user-name">${userName}님</span>
-                    <button class="logout-btn" onclick="logout()">로그아웃</button>
-                `;
+            if (!token) {
+                window.location.href = '/login';
+                return;
             }
-        }
+
+            document.getElementById('userName').textContent = userName + '님';
+            loadHistory();
+            startCamera();
+        });
 
         // 카메라 시작
         async function startCamera() {
@@ -330,7 +300,7 @@
                 video.srcObject = stream;
             } catch (err) {
                 console.error("카메라 접근 오류:", err);
-                alert("카메라를 열 수 없습니다. 권한을 확인해주세요.");
+                resultSection.innerHTML = '<div class="result-title">카메라를 열 수 없습니다. 권한을 확인해주세요.</div>';
             }
         }
 
@@ -341,23 +311,28 @@
                 return;
             }
 
+            const token = localStorage.getItem('access_token');
             captureButton.disabled = true;
             resultSection.classList.remove('has-result');
-            resultSection.classList.add('show');
             resultSection.innerHTML = '<div class="loading">🔍 AI가 분석 중입니다...</div>';
 
+            // 캔버스에 현재 비디오 프레임 그리기
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+            // Blob으로 변환 후 서버 전송
             canvas.toBlob(async (blob) => {
                 const formData = new FormData();
                 formData.append('file', blob, 'capture.jpg');
 
                 try {
-                    const response = await fetch(API_BASE + '/predict/leftover_ratio', {
+                    const response = await fetch(API_BASE + '/api/predict', {
                         method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
                         body: formData
                     });
 
@@ -366,29 +341,32 @@
                     if (response.ok) {
                         const ratio = (data.leftover_ratio * 100).toFixed(1);
                         
-                        currentResultData = {
-                            ratio: data.leftover_ratio,
-                            blob: blob,
-                            timestamp: new Date().toISOString()
-                        };
-
-                        let message = '측정해주셔서 감사합니다 😊';
-
-                        const token = localStorage.getItem('access_token');
-                        const saveButton = token 
-                            ? `<button class="save-btn" onclick="saveResult()">💾 측정 결과 저장하기</button>`
-                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 로그인하고 저장하기</button>`;
+                        let message = '';
+                        if (ratio < 10) {
+                            message = '🎉 훌륭합니다! 음식을 거의 남기지 않으셨네요!\n지구를 지키는 멋진 실천입니다!';
+                        } else if (ratio < 30) {
+                            message = '👍 좋아요! 조금만 더 노력하면 완벽해요!';
+                        } else if (ratio < 50) {
+                            message = '⚠️ 음식을 꽤 많이 남기셨네요.\n처음부터 적게 담는 습관을 들여보세요.';
+                        } else {
+                            message = '😢 음식이 너무 많이 남았어요.\n환경을 위해 필요한 만큼만 담아주세요!';
+                        }
 
                         resultSection.classList.add('has-result');
                         resultSection.innerHTML = `
+                            <div class="result-title">📊 분석 결과</div>
+                            <div class="result-ratio">${ratio}%</div>
                             <div class="result-message">${message}</div>
-                            <div class="save-section">
-                                <div class="save-message">이 결과를 저장하시겠습니까?</div>
-                                ${saveButton}
-                            </div>
                         `;
+
+                        loadHistory();
                     } else {
-                        resultSection.innerHTML = '<div class="result-title">오류: ' + (data.detail || '알 수 없는 에러') + '</div>';
+                        if (response.status === 401) {
+                            alert('로그인이 만료되었습니다.');
+                            logout();
+                        } else {
+                            resultSection.innerHTML = '<div class="result-title">오류: ' + (data.detail || '알 수 없는 에러') + '</div>';
+                        }
                     }
                 } catch (error) {
                     console.error("API 호출 오류:", error);
@@ -399,128 +377,47 @@
             }, 'image/jpeg');
         });
 
-        // 결과 저장
-        async function saveResult() {
-            if (!currentResultData) {
-                alert('저장할 결과가 없습니다.');
-                return;
-            }
-
+        // 측정 이력 로드
+        async function loadHistory() {
             const token = localStorage.getItem('access_token');
-            if (!token) {
-                alert('로그인이 필요합니다.');
-                goToLoginAndSave();
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file', currentResultData.blob, 'capture.jpg');
 
             try {
-                const response = await fetch(API_BASE + '/api/predict', {
-                    method: 'POST',
+                const response = await fetch(API_BASE + '/api/history', {
                     headers: {
                         'Authorization': 'Bearer ' + token
-                    },
-                    body: formData
+                    }
                 });
 
                 const data = await response.json();
 
-                if (response.ok) {
-                    alert('✅ 측정 결과가 저장되었습니다!');
-                    currentResultData = null;
-                    
-                    // 저장 버튼 숨기기
-                    const saveSection = document.querySelector('.save-section');
-                    if (saveSection) {
-                        saveSection.style.display = 'none';
-                    }
-                } else {
-                    if (response.status === 401) {
-                        alert('로그인이 만료되었습니다.');
-                        logout();
-                    } else {
-                        alert('저장 실패: ' + (data.detail || '알 수 없는 에러'));
-                    }
+                if (response.ok && data.history.length > 0) {
+                    const historyList = document.getElementById('historyList');
+                    historyList.innerHTML = data.history.slice(0, 10).map(item => {
+                        const ratio = (item.leftover_ratio * 100).toFixed(1);
+                        const date = new Date(item.measured_at).toLocaleString('ko-KR');
+                        return `
+                            <div class="history-item">
+                                <span class="history-date">📅 ${date}</span>
+                                <span class="history-ratio">${ratio}%</span>
+                            </div>
+                        `;
+                    }).join('');
                 }
             } catch (error) {
-                console.error('저장 오류:', error);
-                alert('저장 중 오류가 발생했습니다.');
+                console.error('History error:', error);
             }
-        }
-
-        // 로그인 페이지로 이동 (결과 저장용)
-        function goToLoginAndSave() {
-            if (!currentResultData) {
-                goToLogin();
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                sessionStorage.setItem('pendingResult', JSON.stringify({
-                    ratio: currentResultData.ratio,
-                    timestamp: currentResultData.timestamp,
-                    imageBase64: e.target.result
-                }));
-                
-                if (confirm('로그인 후 측정 결과를 저장할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?')) {
-                    window.location.href = '/login';
-                }
-            };
-            reader.readAsDataURL(currentResultData.blob);
-        }
-
-        // 로그인 후 임시 결과 처리
-        async function processPendingResult() {
-            const pendingResultStr = sessionStorage.getItem('pendingResult');
-            if (!pendingResultStr) return;
-
-            const token = localStorage.getItem('access_token');
-            if (!token) return;
-
-            try {
-                const pendingResult = JSON.parse(pendingResultStr);
-                sessionStorage.removeItem('pendingResult');
-
-                // base64를 Blob으로 변환
-                const base64Response = await fetch(pendingResult.imageBase64);
-                const blob = await base64Response.blob();
-
-                currentResultData = {
-                    ratio: pendingResult.ratio,
-                    blob: blob,
-                    timestamp: pendingResult.timestamp
-                };
-
-                // 결과 표시
-                const ratio = (currentResultData.ratio * 100).toFixed(1);
-                resultSection.classList.add('has-result', 'show');
-                resultSection.innerHTML = '<div class="loading"> 측정해주셔서 감사합니다 </div>';
-
-                // 자동 저장
-                await saveResult();
-            } catch (error) {
-                console.error('임시 결과 처리 오류:', error);
-                sessionStorage.removeItem('pendingResult');
-            }
-        }
-
-        // 로그인 페이지로 이동
-        function goToLogin() {
-            window.location.href = '/login';
         }
 
         // 로그아웃
         function logout() {
+            // 카메라 스트림 정지
             if (video.srcObject) {
                 video.srcObject.getTracks().forEach(track => track.stop());
             }
             
             localStorage.removeItem('access_token');
             localStorage.removeItem('user_name');
-            window.location.reload();
+            window.location.href = '/login';
         }
     </script>
 </body>
