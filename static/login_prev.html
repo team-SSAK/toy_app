@@ -120,62 +120,6 @@
             color: #a0aec0;
         }
 
-        .privacy-section {
-            margin-bottom: 22px;
-            padding: 16px;
-            background: #f7fafc;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .privacy-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .required-badge {
-            background: #e53e3e;
-            color: white;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .privacy-content {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #4a5568;
-            margin-bottom: 12px;
-        }
-
-        .checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .checkbox-wrapper input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            margin: 0;
-        }
-
-        .checkbox-wrapper label {
-            margin: 0;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #2d3748;
-        }
-
         .btn {
             width: 100%;
             padding: 16px;
@@ -190,19 +134,13 @@
             box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
         }
 
-        .btn:hover:not(:disabled) {
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4);
         }
 
         .btn:active {
             transform: translateY(0);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
         }
 
         .alert {
@@ -322,23 +260,7 @@
                         <label for="register-account">🔑 계좌번호 및 은행</label>
                         <input type="text" id="register-account" placeholder="(은행)계좌번호 형식으로 입력">
                     </div>
-
-                    <!-- 개인정보 동의 섹션 -->
-                    <div class="privacy-section">
-                        <div class="privacy-title">
-                            <span class="required-badge">필수</span>
-                            <span>개인정보 수집·이용 동의</span>
-                        </div>
-                        <div class="privacy-content">
-                            본 캠페인은 참여 확인 및 경품 지급을 위해 개인정보를 수집합니다. 수집된 정보는 캠페인 종료 후 3개월 이내 파기하며, 이후 설문조사 요청에 사용될 수 있습니다.
-                        </div>
-                        <div class="checkbox-wrapper">
-                            <input type="checkbox" id="privacy-agree" required>
-                            <label for="privacy-agree">위 내용을 확인하였으며 동의합니다</label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn" id="register-btn" disabled>가입하기</button>
+                    <button type="submit" class="btn">가입하기</button>
                     <p class="info-text">가입 후 바로 이용 가능합니다</p>
                 </form>
             </div>
@@ -420,15 +342,9 @@
             const name = document.getElementById('register-name').value.trim();
             const phoneNum = document.getElementById('register-phone').value.replace(/[^0-9]/g, '');
             const accountId = document.getElementById('register-account').value.trim() || 'user_' + Date.now();
-            const privacyAgree = document.getElementById('privacy-agree').checked;
 
             if (phoneNum.length < 10 || phoneNum.length > 11) {
                 showAlert('올바른 전화번호를 입력해주세요.', 'error');
-                return;
-            }
-
-            if (!privacyAgree) {
-                showAlert('개인정보 수집·이용에 동의해주세요.', 'error');
                 return;
             }
 
@@ -474,12 +390,6 @@
                 console.error('Register error:', error);
             }
         }
-
-        // 개인정보 동의 체크박스 상태에 따라 버튼 활성화/비활성화
-        document.getElementById('privacy-agree').addEventListener('change', (e) => {
-            const registerBtn = document.getElementById('register-btn');
-            registerBtn.disabled = !e.target.checked;
-        });
 
         // 페이지 로드 시 이미 로그인되어 있으면 메인으로 이동
         window.addEventListener('DOMContentLoaded', () => {

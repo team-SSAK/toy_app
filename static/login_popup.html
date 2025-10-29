@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>잔반 측정 시스템 - 로그인</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            font-family:'Noto Sans KR','Malgun Gothic',sans-serif;
+            background:linear-gradient(135deg,#56ab2f 0%,#a8e063 100%);
+            min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px
+        }
+        .container{
+            background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+            overflow:hidden;width:100%;max-width:450px
+        }
+        .header{
+            background:linear-gradient(135deg,#56ab2f 0%,#a8e063 100%);color:#fff;padding:40px 30px;text-align:center
+        }
+        .header h1{font-size:32px;margin-bottom:10px;font-weight:700}
+        .header p{font-size:15px;opacity:.95;font-weight:300}
+        .tabs{display:flex;background:#f8f9fa;border-bottom:2px solid #e9ecef}
+        .tab{flex:1;padding:18px;text-align:center;cursor:pointer;background:transparent;border:none;font-size:17px;font-weight:600;color:#6c757d;transition:all .3s;position:relative}
+        .tab.active{color:#56ab2f;background:#fff}
+        .tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:3px;background:linear-gradient(90deg,#56ab2f 0%,#a8e063 100%)}
+        .form-container{padding:35px 30px}
+        .form-group{margin-bottom:22px}
+        .form-group label{display:block;margin-bottom:10px;color:#2d3748;font-weight:600;font-size:15px}
+        .form-group input{width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;transition:all .3s;font-family:inherit}
+        .form-group input:focus{outline:none;border-color:#56ab2f;box-shadow:0 0 0 3px rgba(86,171,47,.1)}
+        .form-group input::placeholder{color:#a0aec0}
+        .btn{width:100%;padding:16px;background:linear-gradient(135deg,#56ab2f 0%,#a8e063 100%);color:#fff;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 4px 15px rgba(86,171,47,.3)}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(86,171,47,.4)}
+        .btn:active{transform:translateY(0)}
+        .alert{padding:14px 16px;border-radius:10px;margin-bottom:20px;display:none;font-size:14px;font-weight:500}
+        .alert.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+        .alert.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+        .alert.show{display:block;animation:slideDown .3s ease}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+        .form-section{display:none}
+        .form-section.active{display:block;animation:fadeIn .3s ease}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .info-text{text-align:center;color:#718096;font-size:14px;margin-top:18px;font-weight:400}
+        .eco-icon{font-size:56px;margin-bottom:15px;text-shadow:2px 2px 4px rgba(0,0,0,.1)}
+
+        /* === 개인정보 동의 모달 === */
+        .modal-backdrop{
+            position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999
+        }
+        .modal-backdrop.show{display:flex}
+        .modal{
+            width:100%;max-width:560px;background:#fff;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden
+        }
+        .modal-header{
+            background:linear-gradient(135deg,#56ab2f 0%,#a8e063 100%);color:#fff;padding:18px 22px
+        }
+        .modal-header h2{font-size:18px}
+        .modal-body{padding:20px 22px;max-height:60vh;overflow:auto}
+        .policy-list{font-size:14px;color:#2d3748;line-height:1.6}
+        .policy-list li{margin:6px 0 6px 18px}
+        .tag-required{display:inline-block;background:#e6f4ea;color:#1e7a2c;border:1px solid #ccebd6;padding:2px 8px;border-radius:999px;font-size:12px;margin-left:8px}
+        .modal-footer{display:flex;gap:10px;padding:18px 22px;background:#f8fafc;border-top:1px solid #eef2f7}
+        .btn-secondary{
+            width:auto;padding:12px 16px;background:#e9ecef;color:#2d3748;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s
+        }
+        .btn-secondary:hover{filter:brightness(.97)}
+        .btn-primary{flex:1}
+        .consent-check{display:flex;align-items:flex-start;gap:10px;margin:14px 0;color:#2d3748}
+        .consent-check input{margin-top:3px}
+        .fineprint{font-size:12px;color:#64748b;margin-top:8px}
+        .linklike{color:#16794d;text-decoration:underline;cursor:pointer}
+        .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    </style>
+</head>
+<body>
+    <div class="container" aria-live="polite">
+        <div class="header">
+            <div class="eco-icon">🌱</div>
+            <h1>잔반 측정 시스템</h1>
+            <p>지구를 지키는 작은 실천, 함께해요</p>
+        </div>
+
+        <div class="tabs" role="tablist">
+            <button class="tab active" onclick="switchTab(event,'login')" role="tab" aria-selected="true">로그인</button>
+            <button class="tab" onclick="switchTab(event,'register')" role="tab" aria-selected="false">회원가입</button>
+        </div>
+
+        <div class="form-container">
+            <div id="alert" class="alert" role="status"></div>
+
+            <!-- 로그인 폼 -->
+            <div id="login-form" class="form-section active">
+                <form onsubmit="startWithConsent(event, handleLogin)">
+                    <div class="form-group">
+                        <label for="login-name">👤 이름</label>
+                        <input type="text" id="login-name" placeholder="홍길동" required autocomplete="name"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-phone">📱 전화번호</label>
+                        <input type="tel" id="login-phone" placeholder="01012345678" required pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel"/>
+                    </div>
+                    <button type="submit" class="btn">로그인하기</button>
+                    <p class="info-text">이름과 전화번호로 간편하게 로그인</p>
+                </form>
+            </div>
+
+            <!-- 회원가입 폼 -->
+            <div id="register-form" class="form-section" aria-hidden="true">
+                <form onsubmit="startWithConsent(event, handleRegister)">
+                    <div class="form-group">
+                        <label for="register-name">👤 이름</label>
+                        <input type="text" id="register-name" placeholder="홍길동" required autocomplete="name"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-phone">📱 전화번호</label>
+                        <input type="tel" id="register-phone" placeholder="01012345678" required pattern="[0-9]{10,11}" inputmode="numeric" autocomplete="tel"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-account">🔑 계좌번호 및 은행</label>
+                        <input type="text" id="register-account" placeholder="(은행)계좌번호 형식으로 입력" autocomplete="off"/>
+                    </div>
+                    <button type="submit" class="btn">가입하기</button>
+                    <p class="info-text">가입 후 바로 이용 가능합니다</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 개인정보 수집·이용 동의 모달 -->
+    <div id="consent-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="consent-title" aria-describedby="consent-desc">
+        <div class="modal" role="document">
+            <div class="modal-header">
+                <h2 id="consent-title">[필수] 개인정보 수집·이용 동의 <span class="tag-required">필수</span></h2>
+            </div>
+            <div class="modal-body">
+                <p id="consent-desc" style="margin-bottom:10px;color:#334155">
+                    본 캠페인은 참여 확인 및 경품 지급을 위해 개인정보를 수집·이용합니다.
+                    아래 내용을 확인하시고 동의해 주세요.
+                </p>
+                <ul class="policy-list">
+                    <li><b>수집·이용 목적</b> : 캠페인 <b>참여 확인</b>, <b>경품 지급</b>, <b>사후 설문조사 요청</b></li>
+                    <li><b>수집 항목</b> : 이름, 연락처(전화번호), (선택 입력 시) 계좌 및 은행</li>
+                    <li><b>보유·이용 기간</b> : 캠페인 종료 후 <b>3개월 이내 파기</b> (관련 법령에 따라 별도 보관 시 해당 기간 보관)</li>
+                    <li><b>제3자 제공</b> : 제공 없음 (경품 배송 대행 등 처리를 위한 수탁업체 이용 시 별도 고지)</li>
+                    <li><b>동의 거부 권리</b> : 동의를 거부할 권리가 있으나, 거부 시 캠페인 참여 및 경품 지급이 제한될 수 있습니다.</li>
+                </ul>
+
+                <div class="consent-check">
+                    <input type="checkbox" id="consent-check" aria-describedby="consent-desc"/>
+                    <label for="consent-check">
+                        위 <b>개인정보 수집·이용</b>에 <b>동의</b>합니다. <span class="sr-only">(필수)</span>
+                    </label>
+                </div>
+
+                <div class="fineprint">
+                    * 사후 설문조사 요청은 연락처로 발송될 수 있습니다. 동의 철회는 언제든지 가능합니다.
+                    <span class="linklike" onclick="openPolicy()">개인정보 처리방침 전문 보기</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" type="button" onclick="declineConsent()">동의하지 않음</button>
+                <button class="btn btn-primary" type="button" onclick="confirmConsent()">동의하고 계속</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const CONSENT_VERSION = 'v1'; // 정책 개정 시 버전만 올리면 재동의 유도 가능
+        let pendingSubmitHandler = null; // 동의 후 이어서 실행할 콜백 저장
+
+        function switchTab(evt, tab){
+            document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('active');t.setAttribute('aria-selected','false')});
+            evt.target.classList.add('active'); evt.target.setAttribute('aria-selected','true');
+
+            document.querySelectorAll('.form-section').forEach(f=>f.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+
+            hideAlert();
+        }
+
+        function showAlert(message,type='success'){
+            const el=document.getElementById('alert');
+            el.textContent=message;
+            el.className=`alert ${type} show`;
+        }
+        function hideAlert(){
+            const el=document.getElementById('alert');
+            el.classList.remove('show');
+        }
+
+        // === 동의 흐름 ===
+        function hasConsent(){
+            try{
+                const saved = JSON.parse(localStorage.getItem('privacyConsentV1'));
+                return saved && saved.version === CONSENT_VERSION && saved.accepted === true;
+            }catch{ return false; }
+        }
+        function startWithConsent(event, handler){
+            event.preventDefault();
+            pendingSubmitHandler = ()=>handler(event);
+            if(hasConsent()){
+                handler(event);
+            }else{
+                openConsent();
+            }
+        }
+        function openConsent(){
+            const b = document.getElementById('consent-backdrop');
+            b.classList.add('show');
+            document.getElementById('consent-check').focus();
+        }
+        function closeConsent(){
+            document.getElementById('consent-backdrop').classList.remove('show');
+        }
+        function confirmConsent(){
+            const checked = document.getElementById('consent-check').checked;
+            if(!checked){
+                showAlert('개인정보 수집·이용에 동의가 필요합니다.','error');
+                return;
+            }
+            localStorage.setItem('privacyConsentV1', JSON.stringify({
+                version: CONSENT_VERSION,
+                accepted: true,
+                ts: new Date().toISOString()
+            }));
+            closeConsent();
+            // 동의 완료 후 원래 동작 이어가기
+            if(typeof pendingSubmitHandler === 'function'){ pendingSubmitHandler(); }
+        }
+        function declineConsent(){
+            closeConsent();
+            showAlert('동의하지 않아 진행이 중단되었습니다.','error');
+            pendingSubmitHandler = null;
+        }
+        function openPolicy(){
+            // 실제 개인정보처리방침 URL로 교체하세요
+            alert('개인정보 처리방침 페이지로 이동합니다. (URL 연결 필요)');
+            // window.open('/privacy-policy','_blank');
+        }
+
+        // === 실제 로그인 처리 ===
+        async function handleLogin(event){
+            // event는 이미 preventDefault 상태
+            const name = document.getElementById('login-name').value.trim();
+            const phoneNum = document.getElementById('login-phone').value.replace(/[^0-9]/g,'');
+
+            if(phoneNum.length<10 || phoneNum.length>11){
+                showAlert('올바른 전화번호를 입력해주세요.','error');
+                return;
+            }
+
+            try{
+                const response = await fetch(`${API_BASE}/api/login/with-name`,{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({
+                        name, phoneNum,
+                        // 백엔드 검증이 필요하면 아래 동의 플래그를 함께 전달
+                        privacyConsent:true, consentVersion:CONSENT_VERSION
+                    })
+                });
+                const data = await response.json();
+                if(response.ok){
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_name', name);
+                    showAlert('✅ 로그인 성공! 잠시만 기다려주세요...','success');
+                    setTimeout(()=>{ window.location.href='/' }, 800);
+                }else{
+                    showAlert('❌ '+(data.detail||'로그인에 실패했습니다.'),'error');
+                }
+            }catch(err){
+                showAlert('❌ 서버 연결에 실패했습니다.','error');
+                console.error('Login error:', err);
+            }
+        }
+
+        // === 회원가입 처리 ===
+        async function handleRegister(event){
+            const name = document.getElementById('register-name').value.trim();
+            const phoneNum = document.getElementById('register-phone').value.replace(/[^0-9]/g,'');
+            const accountId = document.getElementById('register-account').value.trim() || ('user_'+Date.now());
+
+            if(phoneNum.length<10 || phoneNum.length>11){
+                showAlert('올바른 전화번호를 입력해주세요.','error');
+                return;
+            }
+
+            try{
+                // 1) 가입
+                const registerResponse = await fetch(`${API_BASE}/api/register`,{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({
+                        name, phoneNum, accountId,
+                        privacyConsent:true, consentVersion:CONSENT_VERSION
+                    })
+                });
+                const registerData = await registerResponse.json();
+
+                if(registerResponse.ok){
+                    showAlert('✅ 회원가입 성공! 자동 로그인 중...','success');
+
+                    // 2) 자동 로그인
+                    const loginResponse = await fetch(`${API_BASE}/api/login/with-name`,{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({ name, phoneNum })
+                    });
+                    const loginData = await loginResponse.json();
+                    if(loginResponse.ok){
+                        localStorage.setItem('access_token', loginData.access_token);
+                        localStorage.setItem('user_name', name);
+                        window.location.href='/';
+                    }else{
+                        showAlert('❌ 자동 로그인에 실패했습니다. 로그인 화면에서 다시 시도해주세요.','error');
+                    }
+                }else{
+                    showAlert('❌ '+(registerData.detail||'회원가입에 실패했습니다.'),'error');
+                }
+            }catch(err){
+                showAlert('❌ 서버 연결에 실패했습니다.','error');
+                console.error('Register error:', err);
+            }
+        }
+
+        // 이미 로그인되어 있으면 메인으로 이동
+        window.addEventListener('DOMContentLoaded', ()=>{
+            const token = localStorage.getItem('access_token');
+            if(token){ window.location.href='/'; }
+        });
+    </script>
+</body>
+</html>
