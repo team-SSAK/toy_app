@@ -1,7 +1,9 @@
 import io
 import os
+import torch
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
 from database.schemas import UserRegister, UserLogin, UserLoginWithName, Token
@@ -11,46 +13,32 @@ from services.s3_service import S3Service
 from database.db_manager import DatabaseManager
 from database.init_db import init_database
 
-# 캠페인 종료 여부 (환경 변수로 제어)
-CAMPAIGN_CLOSED = os.getenv("CAMPAIGN_CLOSED", "false").lower() == "true"
-
 # 서비스 초기화
 MODEL_PATH = "models/yolo8m.pt"
-CLOSED_PATH = "static/closed.html"
-print("🚀 서버 시작 중...")
 yolo_service = YOLOService(MODEL_PATH)
 s3_service = S3Service()
 db_manager = DatabaseManager()
 
-app = FastAPI(title="YOLOv8 잔반 비율 계산 API")
+app = FastAPI(title="YOLOv8 잔반 비율 계산 API (모듈화 버전)")
+
+# 정적 파일 제공
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 async def startup_event():
-    """앱 시작 시 DB 초기화"""
+    """앱 시작 시 데이터베이스 초기화"""
     init_database()
-    if CAMPAIGN_CLOSED:
-        print("⚠️  캠페인 종료 모드로 실행 중입니다.")
 
 # ========== 페이지 라우트 ==========
 
 @app.get("/")
-async def root():
-    """메인 페이지 (잔반 측정) - 캠페인 종료 시 리다이렉트"""
-    if CAMPAIGN_CLOSED:
-        return RedirectResponse(url="/closed")
+async def read_index():
     return FileResponse('static/index.html')
 
 @app.get("/login")
 async def login_page():
-    """로그인 페이지 - 캠페인 종료 시 리다이렉트"""
-    if CAMPAIGN_CLOSED:
-        return RedirectResponse(url="/closed")
-    return FileResponse(CLOSED_PATH)
-
-@app.get("/closed")
-async def closed_page():
-    """캠페인 종료 페이지"""
-    return FileResponse(CLOSED_PATH)
+    """로그인 페이지"""
+    return FileResponse('static/login.html')
 
 # ========== API 엔드포인트 ==========
 

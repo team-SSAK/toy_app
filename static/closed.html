@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    
+    <title>캠페인 종료 - 잔반 측정 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 60px 40px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #56ab2f;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .stats-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .thank-you {
+            font-size: 24px;
+            color: #56ab2f;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .final-message {
+            font-size: 16px;
+            color: #718096;
+            line-height: 1.6;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+            margin: 30px 0;
+        }
+
+        .eco-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 18px;
+            color: #2d3748;
+            font-weight: 600;
+            margin-top: 30px;
+        }
+
+        .contact {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .contact-title {
+            font-size: 16px;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .contact-info {
+            font-size: 14px;
+            color: #718096;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🌱</div>
+        
+        <h1>캠페인이 종료되었습니다</h1>
+        <div class="subtitle">Thank You for Your Interest</div>
+        
+        <div class="message">
+            잔반 측정 캠페인에 관심을 가져주셔서 진심으로 감사드립니다.<br>
+            여러분의 참여 덕분에 의미 있는 환경 보호 활동이 가능했습니다.
+        </div>
+
+        <div class="stats">
+            <div class="stats-title">🎉 캠페인 성과</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">74</div>
+                    <div class="stat-label">총 참여자</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">192</div>
+                    <div class="stat-label">측정 횟수</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="thank-you">🙏 다시 한번 감사드립니다</div>
+        <div class="final-message">
+            우리의 작은 실천이 모여 큰 변화를 만들어냅니다.<br>
+            앞으로도 지속 가능한 환경을 위한 여러분의 관심과 참여 부탁드립니다.
+            <br><br>
+            수집된 정보는 캠페인 종료 후 3개월 이내 파기하며, <br>이후 설문조사 요청에 사용될 수 있습니다.
+        </div>
+
+        <div class="eco-message">
+            <span>🌍</span>
+            <span>지구를 위한 작은 실천, 함께해주셔서 감사합니다</span>
+            <span>♻️</span>
+        </div>
+
+        <div class="contact">
+            <div class="contact-title">문의사항이 있으신가요?</div>
+            <div class="contact-info">
+                오픈채팅: <a href="https://open.kakao.com/o/soNqUYXh" style="color: #56ab2f; font-weight: 600;">싹 문의사항 오픈채팅</a><br>
+                Instagram: ssacgram
+            </div>
+        </div>
+    </div>
+</body>
+</html>
