@@ -45,7 +45,7 @@ async def login_page():
     """로그인 페이지 - 캠페인 종료 시 리다이렉트"""
     if CAMPAIGN_CLOSED:
         return RedirectResponse(url="/closed")
-    return FileResponse(CLOSED_PATH)
+    return FileResponse('static/login.html')
 
 @app.get("/closed")
 async def closed_page():
