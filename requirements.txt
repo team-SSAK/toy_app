@@ -1,7 +1,12 @@
-fastapi
-uvicorn[standard]
-python-multipart
-opencv-python-headless
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
 ultralytics
-Pillow
 numpy==1.26.4
+opencv-python-headless==4.8.1.78
+Pillow
+boto3==1.29.7
+pymysql==1.1.0
+PyJWT==2.8.0
+pydantic>=2.7,<3
+python-dotenv==1.0.0

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>잔반 측정 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 30px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: #56ab2f;
+            font-weight: 700;
+        }
+
+        .eco-badge {
+            font-size: 32px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .camera-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        #camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin: 0 auto 20px;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        .capture-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.3);
+        }
+
+        .capture-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(86, 171, 47, 0.4);
+        }
+
+        .capture-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .result-section.has-result {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+        }
+
+        .result-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .result-section.has-result .result-title {
+            color: white;
+        }
+
+        .result-ratio {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .result-message {
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .loading {
+            font-size: 18px;
+            color: #56ab2f;
+            font-weight: 600;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .history-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-date {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .history-ratio {
+            font-size: 18px;
+            font-weight: 700;
+            color: #56ab2f;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <span class="eco-badge">🌱</span>
+            <h1>잔반 측정 시스템</h1>
+        </div>
+        <div class="user-info">
+            <span class="user-name" id="userName"></span>
+            <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="camera-card">
+            <div id="camera-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+            </div>
+            <button class="capture-btn" id="captureButton">📸 사진 찍고 잔반 분석하기</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">결과가 여기에 표시됩니다</div>
+        </div>
+
+        <div class="history-card">
+            <div class="history-title">📜 최근 측정 이력</div>
+            <div id="historyList">
+                <div class="empty-state">측정 이력이 없습니다</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('captureButton');
+        const resultSection = document.getElementById('resultSection');
+
+        // 페이지 로드 시 인증 확인 및 카메라 시작
+        window.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('access_token');
+            const userName = localStorage.getItem('user_name');
+
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            document.getElementById('userName').textContent = userName + '님';
+            loadHistory();
+            startCamera();
+        });
+
+        // 카메라 시작
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' }
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error("카메라 접근 오류:", err);
+                resultSection.innerHTML = '<div class="result-title">카메라를 열 수 없습니다. 권한을 확인해주세요.</div>';
+            }
+        }
+
+        // 사진 촬영 및 분석
+        captureButton.addEventListener('click', async () => {
+            if (!video.srcObject) {
+                alert("카메라가 준비되지 않았습니다.");
+                return;
+            }
+
+            const token = localStorage.getItem('access_token');
+            captureButton.disabled = true;
+            resultSection.classList.remove('has-result');
+            resultSection.innerHTML = '<div class="loading">🔍 AI가 분석 중입니다...</div>';
+
+            // 캔버스에 현재 비디오 프레임 그리기
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Blob으로 변환 후 서버 전송
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('file', blob, 'capture.jpg');
+
+                try {
+                    const response = await fetch(API_BASE + '/api/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        const ratio = (data.leftover_ratio * 100).toFixed(1);
+                        
+                        let message = '';
+                        if (ratio < 10) {
+                            message = '🎉 훌륭합니다! 음식을 거의 남기지 않으셨네요!\n지구를 지키는 멋진 실천입니다!';
+                        } else if (ratio < 30) {
+                            message = '👍 좋아요! 조금만 더 노력하면 완벽해요!';
+                        } else if (ratio < 50) {
+                            message = '⚠️ 음식을 꽤 많이 남기셨네요.\n처음부터 적게 담는 습관을 들여보세요.';
+                        } else {
+                            message = '😢 음식이 너무 많이 남았어요.\n환경을 위해 필요한 만큼만 담아주세요!';
+                        }
+
+                        resultSection.classList.add('has-result');
+                        resultSection.innerHTML = `
+                            <div class="result-title">📊 분석 결과</div>
+                            <div class="result-ratio">${ratio}%</div>
+                            <div class="result-message">${message}</div>
+                        `;
+
+                        loadHistory();
+                    } else {
+                        if (response.status === 401) {
+                            alert('로그인이 만료되었습니다.');
+                            logout();
+                        } else {
+                            resultSection.innerHTML = '<div class="result-title">오류: ' + (data.detail || '알 수 없는 에러') + '</div>';
+                        }
+                    }
+                } catch (error) {
+                    console.error("API 호출 오류:", error);
+                    resultSection.innerHTML = '<div class="result-title">서버에 연결할 수 없습니다.</div>';
+                } finally {
+                    captureButton.disabled = false;
+                }
+            }, 'image/jpeg');
+        });
+
+        // 측정 이력 로드
+        async function loadHistory() {
+            const token = localStorage.getItem('access_token');
+
+            try {
+                const response = await fetch(API_BASE + '/api/history', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.history.length > 0) {
+                    const historyList = document.getElementById('historyList');
+                    historyList.innerHTML = data.history.slice(0, 10).map(item => {
+                        const ratio = (item.leftover_ratio * 100).toFixed(1);
+                        const date = new Date(item.measured_at).toLocaleString('ko-KR');
+                        return `
+                            <div class="history-item">
+                                <span class="history-date">📅 ${date}</span>
+                                <span class="history-ratio">${ratio}%</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('History error:', error);
+            }
+        }
+
+        // 로그아웃
+        function logout() {
+            // 카메라 스트림 정지
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_name');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

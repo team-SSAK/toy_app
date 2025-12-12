@@ -254,45 +254,6 @@
             padding: 30px;
             color: #a0aec0;
         }
-
-        .contact-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .contact-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #2d3748;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .contact-link {
-            display: inline-block;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
-        }
-
-        .contact-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
-        }
     </style>
 </head>
 <body>
@@ -307,11 +268,6 @@
     </div>
 
     <div class="container">
-        
-        <div class="result-section" id="resultSection">
-            <div class="loading">🔍 AI가 분석 중입니다...</div>
-        </div>
-
         <div class="camera-card">
             <div id="camera-container">
                 <div class="camera-guide">
@@ -331,11 +287,8 @@
             <button class="capture-btn" id="captureButton">📸 사진 찍고 잔반 분석하기</button>
         </div>
 
-        <div class="contact-card">
-            <div class="contact-title">💬 싹 캠페인 문의사항</div>
-            <a href="https://open.kakao.com/o/soNqUYXh" target="_blank" class="contact-link">
-                카카오톡 오픈채팅 문의하기
-            </a>
+        <div class="result-section" id="resultSection">
+            <div class="loading">🔍 AI가 분석 중입니다...</div>
         </div>
     </div>
 
@@ -424,7 +377,7 @@
                         const token = localStorage.getItem('access_token');
                         const saveButton = token 
                             ? `<button class="save-btn" onclick="saveResult()">💾 측정 결과 저장하기</button>`
-                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 제출하기</button>`;
+                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 제출하기</button>`; //원래는 로그인하고 저장하기
 
                         resultSection.classList.add('has-result');
                         resultSection.innerHTML = `
@@ -511,7 +464,7 @@
                     imageBase64: e.target.result
                 }));
                 
-                if (confirm('제출하시겠습니까?')) {
+                if (confirm('제출하시겠습니까?')) {  //'로그인 후 측정 결과를 저장할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?'
                     window.location.href = '/login';
                 }
             };

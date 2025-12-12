@@ -244,54 +244,65 @@
 
         .loading {
             font-size: 18px;
-            color: #a0aec0;
+            color: #56ab2f;
             font-weight: 600;
             padding: 30px;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            display: none;
+        }
+
+        .history-card.show {
+            display: block;
+        }
+
+        .history-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-date {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .history-ratio {
+            font-size: 18px;
+            font-weight: 700;
+            color: #56ab2f;
         }
 
         .empty-state {
             text-align: center;
             padding: 30px;
             color: #a0aec0;
-        }
-
-        .contact-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .contact-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #2d3748;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .contact-link {
-            display: inline-block;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
-        }
-
-        .contact-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
         }
     </style>
 </head>
@@ -302,16 +313,11 @@
             <h1>잔반 측정 시스템</h1>
         </div>
         <div class="user-info" id="userInfo">
-            <button class="login-btn" onclick="goToLogin()">제출하기</button>
+            <button class="login-btn" onclick="goToLogin()">로그인</button>
         </div>
     </div>
 
     <div class="container">
-        
-        <div class="result-section" id="resultSection">
-            <div class="loading">🔍 AI가 분석 중입니다...</div>
-        </div>
-
         <div class="camera-card">
             <div id="camera-container">
                 <div class="camera-guide">
@@ -331,11 +337,15 @@
             <button class="capture-btn" id="captureButton">📸 사진 찍고 잔반 분석하기</button>
         </div>
 
-        <div class="contact-card">
-            <div class="contact-title">💬 싹 캠페인 문의사항</div>
-            <a href="https://open.kakao.com/o/soNqUYXh" target="_blank" class="contact-link">
-                카카오톡 오픈채팅 문의하기
-            </a>
+        <div class="result-section" id="resultSection">
+            <div class="loading">🔍 AI가 분석 중입니다...</div>
+        </div>
+
+        <div class="history-card" id="historyCard">
+            <div class="history-title">📜 내 측정 이력</div>
+            <div id="historyList">
+                <div class="empty-state">측정 이력이 없습니다</div>
+            </div>
         </div>
     </div>
 
@@ -345,6 +355,7 @@
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('captureButton');
         const resultSection = document.getElementById('resultSection');
+        const historyCard = document.getElementById('historyCard');
 
         let currentResultData = null;
 
@@ -365,6 +376,8 @@
                     <span class="user-name">${userName}님</span>
                     <button class="logout-btn" onclick="logout()">로그아웃</button>
                 `;
+                historyCard.classList.add('show');
+                loadHistory();
             }
         }
 
@@ -419,15 +432,26 @@
                             timestamp: new Date().toISOString()
                         };
 
-                        let message = '측정해주셔서 감사합니다 😊';
+                        let message = '';
+                        if (ratio < 10) {
+                            message = '🎉 훌륭합니다! 음식을 거의 남기지 않으셨네요!\n지구를 지키는 멋진 실천입니다!';
+                        } else if (ratio < 30) {
+                            message = '👍 좋아요! 조금만 더 노력하면 완벽해요!';
+                        } else if (ratio < 50) {
+                            message = '⚠️ 음식을 꽤 많이 남기셨네요.\n처음부터 적게 담는 습관을 들여보세요.';
+                        } else {
+                            message = '😢 음식이 너무 많이 남았어요.\n환경을 위해 필요한 만큼만 담아주세요!';
+                        }
 
                         const token = localStorage.getItem('access_token');
                         const saveButton = token 
                             ? `<button class="save-btn" onclick="saveResult()">💾 측정 결과 저장하기</button>`
-                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 제출하기</button>`;
+                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 로그인하고 저장하기</button>`;
 
                         resultSection.classList.add('has-result');
                         resultSection.innerHTML = `
+                            <div class="result-title">📊 분석 결과</div>
+                            <div class="result-ratio">${ratio}%</div>
                             <div class="result-message">${message}</div>
                             <div class="save-section">
                                 <div class="save-message">이 결과를 저장하시겠습니까?</div>
@@ -455,7 +479,7 @@
 
             const token = localStorage.getItem('access_token');
             if (!token) {
-                alert('제출하시겠습니까?');
+                alert('로그인이 필요합니다.');
                 goToLoginAndSave();
                 return;
             }
@@ -477,6 +501,7 @@
                 if (response.ok) {
                     alert('✅ 측정 결과가 저장되었습니다!');
                     currentResultData = null;
+                    loadHistory();
                     
                     // 저장 버튼 숨기기
                     const saveSection = document.querySelector('.save-section');
@@ -500,6 +525,7 @@
         // 로그인 페이지로 이동 (결과 저장용)
         function goToLoginAndSave() {
             if (!currentResultData) {
+                goToLogin();
                 return;
             }
 
@@ -511,7 +537,7 @@
                     imageBase64: e.target.result
                 }));
                 
-                if (confirm('제출하시겠습니까?')) {
+                if (confirm('로그인 후 측정 결과를 저장할 수 있습니다.\n로그인 페이지로 이동하시겠습니까?')) {
                     window.location.href = '/login';
                 }
             };
@@ -543,13 +569,47 @@
                 // 결과 표시
                 const ratio = (currentResultData.ratio * 100).toFixed(1);
                 resultSection.classList.add('has-result', 'show');
-                resultSection.innerHTML = '<div class="loading"> 측정해주셔서 감사합니다 </div>';
+                resultSection.innerHTML = '<div class="loading">🔒 로그인 성공! 저장 중...</div>';
 
                 // 자동 저장
                 await saveResult();
             } catch (error) {
                 console.error('임시 결과 처리 오류:', error);
                 sessionStorage.removeItem('pendingResult');
+            }
+        }
+
+        // 측정 이력 로드
+        async function loadHistory() {
+            const token = localStorage.getItem('access_token');
+            if (!token) return;
+
+            try {
+                const response = await fetch(API_BASE + '/api/history', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.history && data.history.length > 0) {
+                    const historyList = document.getElementById('historyList');
+                    historyList.innerHTML = data.history.slice(0, 10).map(item => {
+                        const ratio = (item.leftover_ratio * 100).toFixed(1);
+                        const date = new Date(item.measured_at).toLocaleString('ko-KR');
+                        return `
+                            <div class="history-item">
+                                <span class="history-date">📅 ${date}</span>
+                                <span class="history-ratio">${ratio}%</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    document.getElementById('historyList').innerHTML = '<div class="empty-state">측정 이력이 없습니다</div>';
+                }
+            } catch (error) {
+                console.error('History error:', error);
             }
         }
 
