@@ -51,6 +51,22 @@
             gap: 15px;
         }
 
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .user-points {
+            font-weight: 700;
+            color: #56ab2f;
+            font-size: 16px;
+            background: #f0f9ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #56ab2f;
+        }
+
         .login-btn, .logout-btn {
             background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
             color: white;
@@ -75,71 +91,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        /* 포인트 카드 스타일 */
-        .points-card {
-            background: linear-gradient(135deg, #2d7a3e 0%, #56ab2f 100%);
-            border-radius: 20px;
-            padding: 25px 30px;
-            box-shadow: 0 10px 30px rgba(45, 122, 62, 0.4);
-            margin-bottom: 20px;
-            width: 100%;
-            display: none; /* 로그인 시에만 표시 */
-            border: 3px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .points-card.show {
-            display: block;
-        }
-
-        .points-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .points-info {
-            color: white;
-        }
-
-        .points-label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .points-value {
-            font-size: 36px;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .user-greeting {
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .exchange-btn-large {
-            width: 100%;
-            padding: 18px;
-            background: white;
-            color: #2d7a3e;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-
-        .exchange-btn-large:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
         }
 
         .camera-card {
@@ -316,6 +267,12 @@
             padding: 30px;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #a0aec0;
+        }
+
         .contact-card {
             background: white;
             border-radius: 15px;
@@ -363,24 +320,11 @@
             <h1 id="navbarTitle">잔반 측정 시스템</h1>
         </div>
         <div class="user-info" id="userInfo">
-            <button class="login-btn" onclick="goToLogin()">로그인</button>
+            <button class="login-btn" onclick="goToLogin()">제출하기</button>
         </div>
     </div>
 
     <div class="container">
-        <!-- 포인트 카드 (로그인 시에만 표시) -->
-        <div class="points-card" id="pointsCard">
-            <div class="points-header">
-                <div class="points-info">
-                    <div class="points-label">내 포인트</div>
-                    <div class="points-value" id="pointsValue">1,234p</div>
-                </div>
-                <div class="user-greeting" id="userGreeting">홍길동님 👋</div>
-            </div>
-            <button class="exchange-btn-large" onclick="goToExchange()">
-                ☕ 커피 쿠폰으로 교환하기
-            </button>
-        </div>
         
         <div class="result-section" id="resultSection">
             <div class="loading">🔍 AI가 분석 중입니다...</div>
@@ -419,10 +363,10 @@
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('captureButton');
         const resultSection = document.getElementById('resultSection');
-        const pointsCard = document.getElementById('pointsCard');
 
         let currentResultData = null;
 
+        // 페이지 로드 시
         window.addEventListener('DOMContentLoaded', () => {
             checkLoginStatus();
             startCamera();
@@ -454,13 +398,9 @@
                         document.getElementById('navbarTitle').style.display = 'none';
                         document.getElementById('userInfo').innerHTML = `
                             <span class="user-name">${userName}님</span>
+                            <span class="user-points">${userPoints}p</span>
                             <button class="logout-btn" onclick="logout()">로그아웃</button>
                         `;
-
-                        // 포인트 카드 업데이트
-                        document.getElementById('pointsValue').textContent = `${userPoints}p`;
-                        document.getElementById('userGreeting').textContent = `${userName}님 👋`;
-                        pointsCard.classList.add('show');
                     } else {
                         // 토큰이 유효하지 않으면 로그아웃 처리
                         logout();
@@ -474,11 +414,11 @@
         // 포인트 계산 함수 (백엔드와 동일한 로직)
         function calculatePoints(ratio) {
             const percentage = ratio * 100;
-            if (percentage > 90 && percentage <= 100) {
+            if (percentage >= 90 && percentage <= 100) {
                 return 500;
-            } else if (percentage > 79 && percentage <= 90) {
+            } else if (percentage >= 79 && percentage < 90) {
                 return 50;
-            } else if (percentage > 50 && percentage <= 79) {
+            } else if (percentage >= 50 && percentage < 79) {
                 return 10;
             }
             return 0;
@@ -541,7 +481,7 @@
                         const token = localStorage.getItem('access_token');
                         const saveButton = token 
                             ? `<button class="save-btn" onclick="saveResult()">💾 측정 결과 저장하기</button>`
-                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 로그인하고 저장하기</button>`;
+                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 제출하기</button>`;
 
                         resultSection.classList.add('has-result');
                         resultSection.innerHTML = `
@@ -575,7 +515,7 @@
 
             const token = localStorage.getItem('access_token');
             if (!token) {
-                alert('로그인이 필요합니다.');
+                alert('제출하시겠습니까?');
                 goToLoginAndSave();
                 return;
             }
@@ -624,7 +564,6 @@
         // 로그인 페이지로 이동 (결과 저장용)
         function goToLoginAndSave() {
             if (!currentResultData) {
-                goToLogin();
                 return;
             }
 
@@ -636,7 +575,7 @@
                     imageBase64: e.target.result
                 }));
                 
-                if (confirm('로그인 후 측정 결과를 저장하시겠습니까?')) {
+                if (confirm('제출하시겠습니까?')) {
                     window.location.href = '/login';
                 }
             };
@@ -685,11 +624,6 @@
             }
         }
 
-        // 교환 페이지로 이동
-        function goToExchange() {
-            window.location.href = '/exchange';
-        }
-
         // 로그인 페이지로 이동
         function goToLogin() {
             window.location.href = '/login';
@@ -705,7 +639,6 @@
             localStorage.removeItem('user_name');
             window.location.reload();
         }
-
     </script>
 </body>
 </html>

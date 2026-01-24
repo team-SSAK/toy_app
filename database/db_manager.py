@@ -28,14 +28,14 @@ class DatabaseManager:
         """데이터베이스 연결 생성"""
         return pymysql.connect(**self.db_config)
     
-    def create_user(self, name: str, phone_num: str, account_id: str) -> int:
+    def create_user(self, name: str, phone_num: str, mealSize: str) -> int:
         """
         사용자 생성
         
         Args:
             name: 사용자 이름
             phone_num: 전화번호
-            account_id: 계정 ID
+            mealSize: 식사량
         
         Returns:
             생성된 사용자 ID
@@ -56,8 +56,8 @@ class DatabaseManager:
                 
                 # 사용자 등록
                 cursor.execute(
-                    "INSERT INTO users (name, phoneNum, accountId) VALUES (%s, %s, %s)",
-                    (name, phone_num, account_id)
+                    "INSERT INTO users (name, phoneNum, mealSize) VALUES (%s, %s, %s)",
+                    (name, phone_num, mealSize)
                 )
                 user_id = cursor.lastrowid
             conn.commit()
@@ -154,16 +154,36 @@ class DatabaseManager:
         try:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT id, name, phoneNum, accountId, measure_cnt, created_at FROM users WHERE id = %s",
+                    "SELECT id, name, phoneNum, mealSize, measure_cnt, point, created_at FROM users WHERE id = %s",
                     (user_id,)
                 )
                 return cursor.fetchone()
         finally:
             conn.close()
     
-    def save_measurement(self, user_id: int, image_url: str, leftover_ratio: float) -> int:
+    def calculate_points(self, leftover_ratio: float) -> int:
         """
-        측정 결과 저장 및 측정 횟수 증가
+        잔반 비율에 따른 포인트 계산
+
+        Args:
+            leftover_ratio: 잔반 비율 (0.0 ~ 1.0)
+        Returns:
+            적립 포인트
+        """
+        percentage = leftover_ratio * 100
+
+        if 90 < percentage <= 100:
+            return 500
+        elif 70 < percentage <= 90:
+            return 50
+        elif 50 < percentage <= 70:
+            return 10
+        else:
+            return 0
+
+    def save_measurement(self, user_id: int, image_url: str, leftover_ratio: float) -> Dict:
+        """
+        측정 결과 저장 및 측정 횟수 증가, 포인트 적립
         
         Args:
             user_id: 사용자 ID
@@ -171,11 +191,14 @@ class DatabaseManager:
             leftover_ratio: 잔반 비율
         
         Returns:
-            저장된 측정 ID
+            저장된 측정 ID와 적립된 포인트 딕셔너리
         """
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
+                # 포인트 계산
+                earned_points = self.calculate_points(leftover_ratio)
+
                 # 측정 결과 저장
                 cursor.execute(
                     """INSERT INTO measurements (user_id, image_url, leftover_ratio) 
@@ -184,13 +207,16 @@ class DatabaseManager:
                 )
                 measurement_id = cursor.lastrowid
                 
-                # 사용자 측정 횟수 증가
+                # 사용자 측정 횟수 증가 및 포인트 적립
                 cursor.execute(
-                    "UPDATE users SET measure_cnt = measure_cnt + 1 WHERE id = %s",
-                    (user_id,)
+                    "UPDATE users SET measure_cnt = measure_cnt + 1, point = point + %s WHERE id = %s",
+                    (earned_points, user_id)
                 )
             conn.commit()
-            return measurement_id
+            return {
+                "measurement_id": measurement_id,
+                "earned_points": earned_points
+            }
         except Exception as e:
             conn.rollback()
             raise Exception(f"측정 결과 저장 실패: {str(e)}")
@@ -203,7 +229,7 @@ class DatabaseManager:
         
         Args:
             user_id: 사용자 ID
-            limit: 조회할 최대 개수 (기본 50개)
+            limit: 조회할 최대 개수-기본50개
         
         Returns:
             측정 이력 리스트
@@ -255,5 +281,33 @@ class DatabaseManager:
         except Exception as e:
             conn.rollback()
             raise Exception(f"측정 결과 삭제 실패: {str(e)}")
+        finally:
+            conn.close()
+
+    def request_exchange(self, user_id: int) -> None:
+        """
+        커피쿠폰 교환 신청
+        
+        Args:
+            user_id: 사용자 ID
+        """
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:        
+                # 교환 신청 등록
+                cursor.execute(
+                    "INSERT INTO exchanges (user_id) VALUES (%s)",
+                    (user_id,)
+                )
+                
+                # 포인트 차감
+                cursor.execute(
+                    "UPDATE users SET point = point - 600 WHERE id = %s",
+                    (user_id,)
+                )
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise Exception(f"교환 신청 실패: {str(e)}")
         finally:
             conn.close()

@@ -100,8 +100,7 @@
             font-size: 15px;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="tel"] {
+        .form-group input {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid #e2e8f0;
@@ -119,50 +118,6 @@
 
         .form-group input::placeholder {
             color: #a0aec0;
-        }
-
-        .meal-size-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .meal-size-btn {
-            padding: 20px 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .meal-size-btn:hover {
-            border-color: #56ab2f;
-            background: #f0f8f0;
-        }
-
-        .meal-size-btn.selected {
-            border-color: #56ab2f;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-        }
-
-        .meal-icon {
-            font-size: 32px;
-        }
-
-        .meal-label {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .meal-size-btn.selected .meal-label {
-            color: white;
         }
 
         .privacy-section {
@@ -363,26 +318,10 @@
                         <label for="register-phone">📱 전화번호</label>
                         <input type="tel" id="register-phone" placeholder="01012345678" required pattern="[0-9]{10,11}">
                     </div>
-
-                    <!-- 식사량 선택 -->
-                    <div class="form-group">
-                        <label>🍚 평소 식사량</label>
-                        <div class="meal-size-container">
-                            <button type="button" class="meal-size-btn" onclick="selectMealSize('소식')">
-                                <span class="meal-icon">🥗</span>
-                                <span class="meal-label">소식</span>
-                            </button>
-                            <button type="button" class="meal-size-btn" onclick="selectMealSize('중식')">
-                                <span class="meal-icon">🍱</span>
-                                <span class="meal-label">중식</span>
-                            </button>
-                            <button type="button" class="meal-size-btn" onclick="selectMealSize('대식')">
-                                <span class="meal-icon">🍛</span>
-                                <span class="meal-label">대식</span>
-                            </button>
-                        </div>
-                        <input type="hidden" id="meal-size" required>
-                    </div>
+                    <!-- <div class="form-group">
+                        <label for="register-account">🔑 계좌번호 및 은행</label>
+                        <input type="text" id="register-account" placeholder="(은행)계좌번호 형식으로 입력">
+                    </div> -->
 
                     <!-- 개인정보 동의 섹션 -->
                     <div class="privacy-section">
@@ -410,17 +349,22 @@
         const API_BASE = window.location.origin;
 
         function switchTab(tab) {
+            // 탭 활성화
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
+
+            // 폼 전환
             document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
-            document.getElementById(tab + '-form').classList.add('active');
+            document.getElementById(`${tab}-form`).classList.add('active');
+
+            // 알림 숨기기
             hideAlert();
         }
 
         function showAlert(message, type = 'success') {
             const alert = document.getElementById('alert');
             alert.textContent = message;
-            alert.className = 'alert ' + type + ' show';
+            alert.className = `alert ${type} show`;
         }
 
         function hideAlert() {
@@ -440,24 +384,33 @@
             }
 
             try {
-                const response = await fetch(API_BASE + '/api/login/with-name', {
+                const response = await fetch(`${API_BASE}/api/login/with-name`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({ name, phoneNum })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
+                    // 토큰 저장
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('user_name', name);
-                    showAlert('✅ 로그인 성공!', 'success');
-                    setTimeout(() => { window.location.href = '/'; }, 1000);
+                    
+                    showAlert('✅ 로그인 성공! 잠시만 기다려주세요...', 'success');
+                    
+                    // 1초 후 메인 페이지로 이동
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
                 } else {
-                    showAlert('❌ ' + (data.detail || '로그인 실패'), 'error');
+                    showAlert('❌ ' + (data.detail || '로그인에 실패했습니다.'), 'error');
                 }
             } catch (error) {
-                showAlert('❌ 서버 연결 실패', 'error');
+                showAlert('❌ 서버 연결에 실패했습니다.', 'error');
+                console.error('Login error:', error);
             }
         }
 
@@ -466,7 +419,7 @@
             
             const name = document.getElementById('register-name').value.trim();
             const phoneNum = document.getElementById('register-phone').value.replace(/[^0-9]/g, '');
-            const mealSize = document.getElementById('meal-size').value;
+            const accountId = document.getElementById('register-account').value.trim() || 'user_' + Date.now();
             const privacyAgree = document.getElementById('privacy-agree').checked;
 
             if (phoneNum.length < 10 || phoneNum.length > 11) {
@@ -474,32 +427,33 @@
                 return;
             }
 
-            if (!mealSize) {
-                showAlert('식사량을 선택해주세요.', 'error');
-                return;
-            }
-
             if (!privacyAgree) {
-                showAlert('개인정보 동의가 필요합니다.', 'error');
+                showAlert('개인정보 수집·이용에 동의해주세요.', 'error');
                 return;
             }
 
             try {
-                const registerResponse = await fetch(API_BASE + '/api/register', {
+                // 회원가입
+                const registerResponse = await fetch(`${API_BASE}/api/register`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ name, phoneNum, mealSize })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, phoneNum, accountId })
                 });
 
                 const registerData = await registerResponse.json();
 
                 if (registerResponse.ok) {
-                    showAlert('✅ 회원가입 성공!', 'success');
+                    showAlert('✅ 회원가입 성공! 자동 로그인 중...', 'success');
                     
+                    // 자동 로그인
                     setTimeout(async () => {
-                        const loginResponse = await fetch(API_BASE + '/api/login/with-name', {
+                        const loginResponse = await fetch(`${API_BASE}/api/login/with-name`, {
                             method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
                             body: JSON.stringify({ name, phoneNum })
                         });
 
@@ -508,35 +462,26 @@
                         if (loginResponse.ok) {
                             localStorage.setItem('access_token', loginData.access_token);
                             localStorage.setItem('user_name', name);
+                            
                             window.location.href = '/';
                         }
                     }, 1000);
                 } else {
-                    showAlert('❌ ' + (registerData.detail || '회원가입 실패'), 'error');
+                    showAlert('❌ ' + (registerData.detail || '회원가입에 실패했습니다.'), 'error');
                 }
             } catch (error) {
-                showAlert('❌ 서버 연결 실패', 'error');
+                showAlert('❌ 서버 연결에 실패했습니다.', 'error');
+                console.error('Register error:', error);
             }
         }
 
-        function selectMealSize(size) {
-            document.querySelectorAll('.meal-size-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            event.target.closest('.meal-size-btn').classList.add('selected');
-            document.getElementById('meal-size').value = size;
-            checkRegisterButton();
-        }
-
-        function checkRegisterButton() {
-            const privacyAgree = document.getElementById('privacy-agree').checked;
-            const mealSize = document.getElementById('meal-size').value;
+        // 개인정보 동의 체크박스 상태에 따라 버튼 활성화/비활성화
+        document.getElementById('privacy-agree').addEventListener('change', (e) => {
             const registerBtn = document.getElementById('register-btn');
-            registerBtn.disabled = !(privacyAgree && mealSize);
-        }
+            registerBtn.disabled = !e.target.checked;
+        });
 
-        document.getElementById('privacy-agree').addEventListener('change', checkRegisterButton);
-
+        // 페이지 로드 시 이미 로그인되어 있으면 메인으로 이동
         window.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('access_token');
             if (token) {

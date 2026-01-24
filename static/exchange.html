@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포인트 교환</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 30px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #56ab2f;
+            transition: transform 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-3px);
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: #56ab2f;
+            font-weight: 700;
+        }
+
+        .eco-badge {
+            font-size: 32px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .user-points {
+            font-weight: 700;
+            color: #56ab2f;
+            font-size: 16px;
+            background: #f0f9ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #56ab2f;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .exchange-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #56ab2f;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            font-size: 16px;
+            color: #718096;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .coupon-info {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .coupon-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .coupon-price {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .coupon-description {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .calculation-box {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            font-size: 18px;
+        }
+
+        .calc-label {
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .calc-value {
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .calc-value.highlight {
+            color: #56ab2f;
+            font-size: 20px;
+        }
+
+        .calc-divider {
+            border-top: 2px solid #cbd5e0;
+            margin: 10px 0;
+        }
+
+        .exchange-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.3);
+        }
+
+        .exchange-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(86, 171, 47, 0.4);
+        }
+
+        .exchange-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-box {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-title {
+            font-weight: 700;
+            color: #c53030;
+            margin-bottom: 8px;
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #742a2a;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #718096;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s;
+        }
+
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #56ab2f;
+            margin-bottom: 15px;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <span class="back-btn" onclick="goBack()">←</span>
+            <span class="eco-badge">🌱</span>
+            <h1 id="navbarTitle">포인트 교환</h1>
+        </div>
+        <div class="user-info" id="userInfo">
+            <span class="user-name">로딩중...</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="exchange-card" id="exchangeCard">
+            <div class="loading">포인트 정보를 불러오는 중...</div>
+        </div>
+    </div>
+
+    <!-- 교환 완료 모달 -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <div class="modal-title">교환 신청 완료!</div>
+            <div class="modal-message">
+                교환 신청이 완료되었습니다.<br>
+                처리는 최대 3일 정도 소요될 수 있습니다.
+            </div>
+            <button class="modal-btn" onclick="goHome()">확인</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const COUPON_PRICE = 600; // 쿠폰 가격
+
+        let currentUserData = null;
+
+        // 페이지 로드 시
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadUserInfo();
+        });
+
+        // 사용자 정보 불러오기
+        async function loadUserInfo() {
+            const token = localStorage.getItem('access_token');
+
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE + '/api/user/info', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    currentUserData = userData;
+                    
+                    // 네비게이션 바 업데이트
+                    updateNavbar(userData);
+                    
+                    // 교환 카드 렌더링
+                    renderExchangeCard(userData);
+                } else {
+                    if (response.status === 401) {
+                        alert('로그인이 만료되었습니다.');
+                        localStorage.removeItem('access_token');
+                        window.location.href = '/login';
+                    } else {
+                        alert('사용자 정보를 불러올 수 없습니다.');
+                        goBack();
+                    }
+                }
+            } catch (error) {
+                console.error('사용자 정보 조회 오류:', error);
+                alert('서버와 연결할 수 없습니다.');
+                goBack();
+            }
+        }
+
+        // 네비게이션 바 업데이트
+        function updateNavbar(userData) {
+            const userName = userData.name;
+            const userPoints = userData.point || 0;
+
+            document.getElementById('navbarTitle').style.display = 'none';
+            document.getElementById('userInfo').innerHTML = `
+                <span class="user-name">${userName}님</span>
+                <span class="user-points">${userPoints}p</span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            `;
+        }
+
+        // 교환 카드 렌더링
+        function renderExchangeCard(userData) {
+            const currentPoints = userData.point || 0;
+            const remainingPoints = currentPoints - COUPON_PRICE;
+            const canExchange = currentPoints >= COUPON_PRICE;
+
+            const exchangeCard = document.getElementById('exchangeCard');
+            exchangeCard.innerHTML = `
+                <h2 class="card-title">☕ 카페 쿠폰 교환</h2>
+                <p class="card-subtitle">포인트로 카페 쿠폰을 받아보세요</p>
+
+                <div class="coupon-info">
+                    <div class="coupon-title">🎫 카페 아메리카노</div>
+                    <div class="coupon-price">${COUPON_PRICE} Point</div>
+                    <div class="coupon-description">모든 카페에서 사용 가능</div>
+                </div>
+
+                <div class="calculation-box">
+                    <div class="calc-row">
+                        <span class="calc-label">현재 포인트</span>
+                        <span class="calc-value">${currentPoints.toLocaleString()} point</span>
+                    </div>
+                    <div class="calc-row">
+                        <span class="calc-label">- 사용 포인트</span>
+                        <span class="calc-value">${COUPON_PRICE.toLocaleString()} point</span>
+                    </div>
+                    <div class="calc-divider"></div>
+                    <div class="calc-row">
+                        <span class="calc-label">잔여 포인트</span>
+                        <span class="calc-value highlight">${Math.max(0, remainingPoints).toLocaleString()} point</span>
+                    </div>
+                </div>
+
+                <button class="exchange-btn" onclick="requestExchange()" ${!canExchange ? 'disabled' : ''}>
+                    ${canExchange ? '🎁 교환하기' : '❌ 포인트 부족'}
+                </button>
+
+                ${!canExchange ? `
+                    <div class="info-box">
+                        <div class="info-title">⚠️ 포인트가 부족합니다</div>
+                        <div class="info-text">
+                            ${COUPON_PRICE - currentPoints}p가 더 필요합니다.<br>
+                            잔반을 더 측정하여 포인트를 모아보세요!
+                        </div>
+                    </div>
+                ` : `
+                    <div class="info-box" style="background: #f0fff4; border-color: #68d391;">
+                        <div class="info-title" style="color: #22543d;">📌 안내사항</div>
+                        <div class="info-text" style="color: #22543d;">
+                            • 교환 신청 후 처리까지 최대 3일 소요<br>
+                            • 쿠폰은 등록하신 전화번호로 발송<br>
+                            • 교환 신청 후 취소 불가
+                        </div>
+                    </div>
+                `}
+            `;
+        }
+
+        // 교환 신청
+        async function requestExchange() {
+            if (!currentUserData) {
+                alert('사용자 정보를 불러오는 중입니다.');
+                return;
+            }
+
+            if (currentUserData.point < COUPON_PRICE) {
+                alert('포인트가 부족합니다.');
+                return;
+            }
+
+            if (!confirm(`${COUPON_PRICE}p를 사용하여 카페 쿠폰으로 교환하시겠습니까?`)) {
+                return;
+            }
+
+            const token = localStorage.getItem('access_token');
+
+            try {
+                const response = await fetch(API_BASE + '/api/exchange', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                    },
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 성공 모달 표시
+                    showSuccessModal();
+                } else {
+                    if (response.status === 401) {
+                        alert('로그인이 만료되었습니다.');
+                        logout();
+                    } else if (response.status === 400) {
+                        alert(data.detail || '포인트가 부족합니다.');
+                        await loadUserInfo(); // 정보 새로고침
+                    } else {
+                        alert('교환 신청에 실패했습니다: ' + (data.detail || '알 수 없는 오류'));
+                    }
+                }
+            } catch (error) {
+                console.error('교환 신청 오류:', error);
+                alert('서버와 연결할 수 없습니다.');
+            }
+        }
+
+        // 성공 모달 표시
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.classList.add('show');
+        }
+
+        // 홈으로 이동
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // 뒤로가기
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        // 로그아웃
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_name');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

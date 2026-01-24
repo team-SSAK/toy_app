@@ -1,14 +1,13 @@
 from pydantic import BaseModel
-from typing import Optional # accountId가 Nullable일 경우 대비
 
 # 회원가입 및 인증 관련 스키마
 class UserRegister(BaseModel):
     """
-    회원가입 요청 스키마 (users 테이블의 name, phoneNum, accountId와 일치)
+    회원가입 요청 스키마 (users 테이블의 name, phoneNum, mealSize와 일치)
     """
     name: str
     phoneNum: str
-    accountId: str # user 테이블에 NOT NULL 제약조건이 없으므로 Optional도 가능
+    mealSize: str
 
 class UserLogin(BaseModel):
     """
@@ -29,6 +28,19 @@ class Token(BaseModel):
     """
     access_token: str
     token_type: str
+
+# 포인트 교환 관련 스키마
+class ExchangeRequest(BaseModel):
+    """
+    커피쿠폰 교환 신청 요청 스키마
+    """
+    pass
+
+class ExchangeResponse(BaseModel):
+    """
+    커피쿠폰 교환 신청 응답 스키마
+    """
+    message: str
 
 # 데이터 조회/응답 관련 스키마 (필요에 따라 추가)
 class MeasurementBase(BaseModel):
@@ -57,7 +69,7 @@ class UserInfoResponse(BaseModel):
     id: int
     name: str
     phoneNum: str
-    accountId: Optional[str] = None
+    point: int
     measure_cnt: int
     
     class Config:
