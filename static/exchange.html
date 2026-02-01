@@ -354,7 +354,7 @@
 
     <script>
         const API_BASE = window.location.origin;
-        const COUPON_PRICE = 600; // 쿠폰 가격
+        const COUPON_PRICE = 300; // 쿠폰 가격
 
         let currentUserData = null;
 
@@ -427,13 +427,13 @@
 
             const exchangeCard = document.getElementById('exchangeCard');
             exchangeCard.innerHTML = `
-                <h2 class="card-title">☕ 카페 쿠폰 교환</h2>
-                <p class="card-subtitle">포인트로 카페 쿠폰을 받아보세요</p>
+                <h2 class="card-title">☕ 카페 할인 쿠폰 교환</h2>
+                <p class="card-subtitle">포인트로 카페 할인 쿠폰을 받아보세요</p>
 
                 <div class="coupon-info">
-                    <div class="coupon-title">🎫 카페 아메리카노</div>
+                    <div class="coupon-title">🎫 CAFE MORE 1000원 권</div>
                     <div class="coupon-price">${COUPON_PRICE} Point</div>
-                    <div class="coupon-description">모든 카페에서 사용 가능</div>
+                    <div class="coupon-description">CAFE MORE 에서 사용 가능</div>
                 </div>
 
                 <div class="calculation-box">
@@ -468,8 +468,7 @@
                     <div class="info-box" style="background: #f0fff4; border-color: #68d391;">
                         <div class="info-title" style="color: #22543d;">📌 안내사항</div>
                         <div class="info-text" style="color: #22543d;">
-                            • 교환 신청 후 처리까지 최대 3일 소요<br>
-                            • 쿠폰은 등록하신 전화번호로 발송<br>
+                            • 쿠폰은 마이 쿠폰함에서 확인 가능<br>
                             • 교환 신청 후 취소 불가
                         </div>
                     </div>

@@ -62,6 +62,13 @@ async def exchange_page():
         return RedirectResponse(url="/closed")
     return FileResponse('static/exchange.html')
 
+@app.get("/coupons")
+async def coupons_page():
+    """마이 쿠폰함 페이지 - 캠페인 종료 시 리다이렉트"""
+    if CAMPAIGN_CLOSED:
+        return RedirectResponse(url="/closed")
+    return FileResponse('static/coupons.html')
+
 # ========== API 엔드포인트 ==========
 
 @app.post("/api/register")
@@ -178,7 +185,7 @@ async def request_change(user_id: int = Depends(get_current_user)):
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
 
         # 포인트 확인
-        required_points = 600
+        required_points = 300
         if user_info.get("point", 0) < required_points:
             raise HTTPException(status_code=400, detail=f"포인트가 부족합니다. (필요 {required_points}점, 보유: {user_info.get('point', 0)}점)")
         
@@ -190,3 +197,34 @@ async def request_change(user_id: int = Depends(get_current_user)):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/exchange/history")
+async def get_exchange_history(user_id:int = Depends(get_current_user)):
+    """사용자의 교환 이력 조회"""
+    try:
+        history = db_manager.get_user_exchange_history(user_id)
+        return {
+            "total": len(history),
+            "history": history
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"이력 조회 실패: {str(e)}")
+    
+@app.post("/api/exchange/{exchange_id}/use")
+async def use_coupon(exchange_id: int, user_id: int = Depends(get_current_user)):
+    """쿠폰 사용 완료 처리"""
+    try:
+        success = db_manager.use_coupon(exchange_id, user_id)
+        
+        if success:
+            return {
+                "message": "쿠폰이 사용 완료되었습니다.",
+                "exchange_id": exchange_id
+            }
+        else:
+            raise HTTPException(status_code=400, detail="쿠폰 사용 처리에 실패했습니다.")
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"쿠폰 사용 처리 실패: {str(e)}")

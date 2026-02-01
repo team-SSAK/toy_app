@@ -173,7 +173,7 @@ class DatabaseManager:
         percentage = leftover_ratio * 100
 
         if 90 < percentage <= 100:
-            return 500
+            return 100
         elif 70 < percentage <= 90:
             return 50
         elif 50 < percentage <= 70:
@@ -296,18 +296,74 @@ class DatabaseManager:
             with conn.cursor() as cursor:        
                 # 교환 신청 등록
                 cursor.execute(
-                    "INSERT INTO exchanges (user_id) VALUES (%s)",
+                    "INSERT INTO exchanges (user_id, status) VALUES (%s, 'APPROVED')",
                     (user_id,)
                 )
                 
                 # 포인트 차감
                 cursor.execute(
-                    "UPDATE users SET point = point - 600 WHERE id = %s",
+                    "UPDATE users SET point = point - 300 WHERE id = %s",
                     (user_id,)
                 )
             conn.commit()
         except Exception as e:
             conn.rollback()
             raise Exception(f"교환 신청 실패: {str(e)}")
+        finally:
+            conn.close()
+    
+    def get_user_exchange_history(self, user_id: int, limit: int = 50) -> List[Dict]:
+        """
+        사용자의 교환 이력 조회
+
+        Args:
+            user_id: 사용자 ID
+            limit: 조회할 최대 개수-기본50개
+        
+        Returns:
+            교환 이력 리스트
+        """
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """SELECT id, requested_at, used_at, status 
+                       FROM exchanges 
+                       WHERE user_id = %s 
+                       ORDER BY requested_at DESC 
+                       LIMIT %s""",
+                    (user_id, limit)
+                )
+                return cursor.fetchall()
+        finally:
+            conn.close()
+        
+    def use_coupon(self, exchange_id: int, user_id: int) -> bool:
+        """
+        쿠폰 사용 처리
+        
+        Args:
+            exchange_id: 교환 ID
+            user_id: 사용자 ID
+        
+        Returns:
+            사용 성공 여부
+        """
+        conn = self.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                # 쿠폰 사용 처리
+                cursor.execute(
+                    """UPDATE exchanges 
+                       SET status = 'USED', used_at = CURRENT_TIMESTAMP 
+                       WHERE id = %s AND user_id = %s AND status = 'APPROVED'""",
+                    (exchange_id, user_id)
+                )
+                used = cursor.rowcount > 0
+            conn.commit()
+            return used
+        except Exception as e:
+            conn.rollback()
+            raise Exception(f"쿠폰 사용 처리 실패: {str(e)}")
         finally:
             conn.close()

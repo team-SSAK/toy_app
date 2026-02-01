@@ -52,7 +52,8 @@ def init_database():
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT NOT NULL,
                     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
+                    used_at TIMESTAMP NULL DEFAULT NULL,
+                    status ENUM('PENDING', 'APPROVED', 'USED', 'REJECTED') DEFAULT 'PENDING',
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                     INDEX idx_user_id (user_id),
                     INDEX idx_status(status)
