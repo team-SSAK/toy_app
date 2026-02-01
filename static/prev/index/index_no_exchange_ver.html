@@ -57,6 +57,16 @@
             font-size: 16px;
         }
 
+        .user-points {
+            font-weight: 700;
+            color: #56ab2f;
+            font-size: 16px;
+            background: #f0f9ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #56ab2f;
+        }
+
         .login-btn, .logout-btn {
             background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
             color: white;
@@ -81,96 +91,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        /* 포인트 카드 스타일 */
-        .points-card {
-            background: linear-gradient(135deg, #2d7a3e 0%, #56ab2f 100%);
-            border-radius: 20px;
-            padding: 25px 30px;
-            box-shadow: 0 10px 30px rgba(45, 122, 62, 0.4);
-            margin-bottom: 20px;
-            width: 100%;
-            display: none;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .points-card.show {
-            display: block;
-        }
-
-        .points-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .points-info {
-            color: white;
-        }
-
-        .points-label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .points-value {
-            font-size: 36px;
-            font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .user-greeting {
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .points-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .exchange-btn-large {
-            width: 100%;
-            padding: 18px;
-            background: white;
-            color: #2d7a3e;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-
-        .exchange-btn-large:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-        }
-
-        .coupon-btn {
-            width: 100%;
-            padding: 18px;
-            background: rgba(255,255,255,0.9);
-            color: #2d7a3e;
-            border: 2px solid rgba(255,255,255,0.5);
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .coupon-btn:hover {
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
 
         .camera-card {
@@ -333,40 +253,11 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
-            position: relative;
         }
 
-        .save-btn:hover:not(:disabled) {
+        .save-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .save-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .save-btn.loading {
-            color: transparent;
-        }
-
-        .save-btn.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            margin-left: -10px;
-            margin-top: -10px;
-            border: 3px solid #56ab2f;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spinner 0.8s linear infinite;
-        }
-
-        @keyframes spinner {
-            to { transform: rotate(360deg); }
         }
 
         .loading {
@@ -374,6 +265,12 @@
             color: #a0aec0;
             font-weight: 600;
             padding: 30px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #a0aec0;
         }
 
         .contact-card {
@@ -423,29 +320,11 @@
             <h1 id="navbarTitle">잔반 측정 시스템</h1>
         </div>
         <div class="user-info" id="userInfo">
-            <button class="login-btn" onclick="goToLogin()">로그인</button>
+            <button class="login-btn" onclick="goToLogin()">제출하기</button>
         </div>
     </div>
 
     <div class="container">
-        <!-- 포인트 카드 (로그인 시에만 표시) -->
-        <div class="points-card" id="pointsCard">
-            <div class="points-header">
-                <div class="points-info">
-                    <div class="points-label">내 포인트</div>
-                    <div class="points-value" id="pointsValue">0p</div>
-                </div>
-                <div class="user-greeting" id="userGreeting">환영합니다 👋</div>
-            </div>
-            <div class="points-buttons">
-                <button class="exchange-btn-large" onclick="goToExchange()">
-                    ☕ 쿠폰 교환
-                </button>
-                <button class="coupon-btn" onclick="goToCoupons()">
-                    🎫 마이 쿠폰함
-                </button>
-            </div>
-        </div>
         
         <div class="result-section" id="resultSection">
             <div class="loading">🔍 AI가 분석 중입니다...</div>
@@ -484,21 +363,23 @@
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('captureButton');
         const resultSection = document.getElementById('resultSection');
-        const pointsCard = document.getElementById('pointsCard');
 
         let currentResultData = null;
 
+        // 페이지 로드 시
         window.addEventListener('DOMContentLoaded', () => {
             checkLoginStatus();
             startCamera();
             processPendingResult();
         });
 
+        // 로그인 상태 확인 및 사용자 정보 표시
         async function checkLoginStatus() {
             const token = localStorage.getItem('access_token');
 
             if (token) {
                 try {
+                    // 사용자 정보 가져오기
                     const response = await fetch(API_BASE + '/api/user/info', {
                         headers: {
                             'Authorization': 'Bearer ' + token
@@ -510,20 +391,18 @@
                         const userName = userData.name;
                         const userPoints = userData.point || 0;
 
+                        // 로컬 스토리지에 이름 저장
                         localStorage.setItem('user_name', userName);
 
                         // 네비게이션 바 업데이트
                         document.getElementById('navbarTitle').style.display = 'none';
                         document.getElementById('userInfo').innerHTML = `
                             <span class="user-name">${userName}님</span>
+                            <span class="user-points">${userPoints}p</span>
                             <button class="logout-btn" onclick="logout()">로그아웃</button>
                         `;
-
-                        // 포인트 카드 표시 및 업데이트
-                        document.getElementById('pointsValue').textContent = `${userPoints}p`;
-                        document.getElementById('userGreeting').textContent = `${userName}님 👋`;
-                        pointsCard.classList.add('show');
                     } else {
+                        // 토큰이 유효하지 않으면 로그아웃 처리
                         logout();
                     }
                 } catch (error) {
@@ -532,18 +411,20 @@
             }
         }
 
+        // 포인트 계산 함수 (백엔드와 동일한 로직)
         function calculatePoints(ratio) {
             const percentage = ratio * 100;
-            if (percentage > 90 && percentage <= 100) {
-                return 100;
-            } else if (percentage > 70 && percentage <= 90) {
+            if (percentage >= 90 && percentage <= 100) {
+                return 500;
+            } else if (percentage >= 79 && percentage < 90) {
                 return 50;
-            } else if (percentage > 50 && percentage <= 70) {
+            } else if (percentage >= 50 && percentage < 79) {
                 return 10;
             }
             return 0;
         }
 
+        // 카메라 시작
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -556,6 +437,7 @@
             }
         }
 
+        // 사진 촬영 및 분석
         captureButton.addEventListener('click', async () => {
             if (!video.srcObject) {
                 alert("카메라가 준비되지 않았습니다.");
@@ -599,7 +481,7 @@
                         const token = localStorage.getItem('access_token');
                         const saveButton = token 
                             ? `<button class="save-btn" onclick="saveResult()">💾 측정 결과 저장하기</button>`
-                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 로그인하고 저장하기</button>`;
+                            : `<button class="save-btn" onclick="goToLoginAndSave()">🔐 제출하기</button>`;
 
                         resultSection.classList.add('has-result');
                         resultSection.innerHTML = `
@@ -624,6 +506,7 @@
             }, 'image/jpeg');
         });
 
+        // 결과 저장
         async function saveResult() {
             if (!currentResultData) {
                 alert('저장할 결과가 없습니다.');
@@ -632,22 +515,9 @@
 
             const token = localStorage.getItem('access_token');
             if (!token) {
-                alert('로그인이 필요합니다.');
+                alert('제출하시겠습니까?');
                 goToLoginAndSave();
                 return;
-            }
-
-            // [수정 1] DOM 요소 가져오기
-            const saveBtn = document.querySelector('.save-btn');
-            const saveMsg = document.querySelector('.save-message');
-
-            // [수정 2] 로딩 상태 시작 (UI 업데이트)
-            if (saveBtn) {
-                saveBtn.classList.add('loading'); // CSS의 .save-btn.loading 스타일 적용 (스피너 표시)
-                saveBtn.disabled = true;          // 중복 클릭 방지
-            }
-            if (saveMsg) {
-                saveMsg.textContent = "⏳ 서버에 저장 중입니다..."; // 메시지 변경
             }
 
             const formData = new FormData();
@@ -669,11 +539,13 @@
                     alert(`✅ 측정 결과가 저장되었습니다!\n${earnedPoints}p가 적립되었습니다!`);
                     currentResultData = null;
                     
+                    // 저장 버튼 숨기기
                     const saveSection = document.querySelector('.save-section');
                     if (saveSection) {
                         saveSection.style.display = 'none';
                     }
 
+                    // 포인트 업데이트
                     await checkLoginStatus();
                 } else {
                     if (response.status === 401) {
@@ -686,22 +558,12 @@
             } catch (error) {
                 console.error('저장 오류:', error);
                 alert('저장 중 오류가 발생했습니다.');
-            } finally {
-                // [수정 3] 로딩 상태 해제 (성공하든 실패하든 실행됨)
-                // 만약 성공해서 섹션이 사라졌다면 의미 없지만, 실패했을 때를 위해 필요합니다.
-                if (saveBtn) {
-                    saveBtn.classList.remove('loading');
-                    saveBtn.disabled = false;
-                }
-                if (saveMsg) {
-                    saveMsg.textContent = "이 결과를 저장하시겠습니까?"; // 원래 메시지로 복구
-                }
             }
         }
 
+        // 로그인 페이지로 이동 (결과 저장용)
         function goToLoginAndSave() {
             if (!currentResultData) {
-                goToLogin();
                 return;
             }
 
@@ -713,13 +575,14 @@
                     imageBase64: e.target.result
                 }));
                 
-                if (confirm('로그인 후 측정 결과를 저장하시겠습니까?')) {
+                if (confirm('제출하시겠습니까?')) {
                     window.location.href = '/login';
                 }
             };
             reader.readAsDataURL(currentResultData.blob);
         }
 
+        // 로그인 후 임시 결과 처리
         async function processPendingResult() {
             const pendingResultStr = sessionStorage.getItem('pendingResult');
             if (!pendingResultStr) return;
@@ -731,6 +594,7 @@
                 const pendingResult = JSON.parse(pendingResultStr);
                 sessionStorage.removeItem('pendingResult');
 
+                // base64를 Blob으로 변환
                 const base64Response = await fetch(pendingResult.imageBase64);
                 const blob = await base64Response.blob();
 
@@ -740,6 +604,7 @@
                     timestamp: pendingResult.timestamp
                 };
 
+                // 결과 표시
                 const ratio = Math.round(currentResultData.ratio * 100);
                 const earnedPoints = calculatePoints(currentResultData.ratio);
                 
@@ -748,12 +613,10 @@
                     <div class="result-title">잔반 측정 결과</div>
                     <div class="result-ratio">${ratio}%</div>
                     ${earnedPoints > 0 ? `<div class="result-points">+${earnedPoints}p 적립 예정</div>` : ''}
-                    <div class="save-message" style="color: white; font-size: 16px; margin: 20px 0;">
-                        ⏳ 잠시만 기다려주세요...<br>
-                        측정 결과를 저장하고 있습니다
-                    </div>
+                    <div class="loading">저장 중입니다...</div>
                 `;
 
+                // 자동 저장
                 await saveResult();
             } catch (error) {
                 console.error('임시 결과 처리 오류:', error);
@@ -761,18 +624,12 @@
             }
         }
 
-        function goToExchange() {
-            window.location.href = '/exchange';
-        }
-
-        function goToCoupons() {
-            window.location.href = '/coupons';
-        }
-
+        // 로그인 페이지로 이동
         function goToLogin() {
             window.location.href = '/login';
         }
 
+        // 로그아웃
         function logout() {
             if (video.srcObject) {
                 video.srcObject.getTracks().forEach(track => track.stop());

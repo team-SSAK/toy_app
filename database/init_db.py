@@ -24,9 +24,10 @@ def init_database():
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     name VARCHAR(100) NOT NULL,
                     phoneNum VARCHAR(20) NOT NULL,
-                    accountId VARCHAR(100),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     measure_cnt INT DEFAULT 0,
+                    point INT DEFAULT 0,
+                    mealSize VARCHAR(50),
                     UNIQUE KEY unique_name_phone (name, phoneNum)
                 )
             """)
@@ -44,7 +45,21 @@ def init_database():
                     INDEX idx_measured_at (measured_at)
                 )
             """)
-        
+
+            # 커피쿠폰 교환 신청 테이블 생성
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS exchanges (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    user_id BIGINT NOT NULL,
+                    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    used_at TIMESTAMP NULL DEFAULT NULL,
+                    status ENUM('PENDING', 'APPROVED', 'USED', 'REJECTED') DEFAULT 'PENDING',
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_status(status)
+                )
+            """)
+
         conn.commit()
         print("✅ 데이터베이스 테이블이 성공적으로 초기화되었습니다.")
     except Exception as e:

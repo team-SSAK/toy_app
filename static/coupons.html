@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이 쿠폰함</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 30px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #56ab2f;
+            transition: transform 0.2s;
+            user-select: none;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-3px);
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: #56ab2f;
+            font-weight: 700;
+        }
+
+        .eco-badge {
+            font-size: 32px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .user-points {
+            font-weight: 700;
+            color: #56ab2f;
+            font-size: 16px;
+            background: #f0f9ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #56ab2f;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #56ab2f;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #718096;
+        }
+
+        .coupon-count {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-top: 15px;
+        }
+
+        .coupon-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .coupon-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .coupon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .coupon-card.approved {
+            border-left: 5px solid #56ab2f;
+        }
+
+        .coupon-card.used {
+            border-left: 5px solid #cbd5e0;
+            opacity: 0.7;
+        }
+
+        .coupon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .coupon-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status-badge.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.used {
+            background: #e2e8f0;
+            color: #718096;
+        }
+
+        .coupon-info {
+            margin-bottom: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 15px;
+        }
+
+        .info-label {
+            color: #718096;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .coupon-divider {
+            border-top: 2px dashed #e2e8f0;
+            margin: 15px 0;
+        }
+
+        .coupon-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .empty-message {
+            font-size: 16px;
+            color: #718096;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .exchange-link-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
+        }
+
+        .exchange-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .loading {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        /* 쿠폰 상세 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 16px;
+            color: #718096;
+        }
+
+        .modal-info {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .modal-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+
+        .modal-info-label {
+            color: #718096;
+        }
+
+        .modal-info-value {
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .use-btn {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
+        }
+
+        .use-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .use-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .cancel-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .cancel-btn:hover {
+            background: #cbd5e0;
+        }
+
+        .used-notice {
+            background: #fff5f5;
+            border-left: 4px solid #fc8181;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .used-notice-text {
+            font-size: 14px;
+            color: #742a2a;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-left">
+            <span class="back-btn" onclick="goBack()">←</span>
+            <span class="eco-badge">🌱</span>
+        </div>
+        <div class="user-info" id="userInfo">
+            <span class="user-name">로딩중...</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">🎫 마이 쿠폰함</div>
+            <div class="page-subtitle">교환한 쿠폰 목록</div>
+            <div class="coupon-count">총 <strong id="couponCount">0</strong>개의 쿠폰</div>
+        </div>
+
+        <div id="couponListContainer">
+            <div class="loading">
+                <div class="loading-text">쿠폰 목록을 불러오는 중...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 쿠폰 상세 모달 -->
+    <div class="modal" id="couponModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">☕</div>
+                <div class="modal-title">카페 MORE 1000원 할인쿠폰</div>
+                <div class="modal-subtitle">쿠폰 상세 정보</div>
+            </div>
+
+            <div id="modalBody"></div>
+
+            <div class="modal-buttons" id="modalButtons">
+                <button class="modal-btn cancel-btn" onclick="closeModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentCoupon = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadUserInfo();
+            loadCoupons();
+        });
+
+        async function loadUserInfo() {
+            const token = localStorage.getItem('access_token');
+
+            if (!token) {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch(API_BASE + '/api/user/info', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    updateNavbar(userData);
+                } else {
+                    if (response.status === 401) {
+                        alert('로그인이 만료되었습니다.');
+                        localStorage.removeItem('access_token');
+                        window.location.href = '/login';
+                    }
+                }
+            } catch (error) {
+                console.error('사용자 정보 조회 오류:', error);
+            }
+        }
+
+        function updateNavbar(userData) {
+            const userName = userData.name;
+            const userPoints = userData.point || 0;
+
+            document.getElementById('userInfo').innerHTML = `
+                <span class="user-name">${userName}님</span>
+                <span class="user-points">${userPoints}p</span>
+                <button class="logout-btn" onclick="logout()">로그아웃</button>
+            `;
+        }
+
+        async function loadCoupons() {
+            const token = localStorage.getItem('access_token');
+
+            if (!token) return;
+
+            try {
+                const response = await fetch(API_BASE + '/api/exchange/history', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    renderCoupons(data.exchanges || data.history || []);
+                }
+            } catch (error) {
+                console.error('쿠폰 내역 조회 오류:', error);
+                showError();
+            }
+        }
+
+        function renderCoupons(coupons) {
+            const container = document.getElementById('couponListContainer');
+            const couponCount = document.getElementById('couponCount');
+
+            if (coupons.length === 0) {
+                couponCount.textContent = '0';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎫</div>
+                        <div class="empty-title">아직 교환한 쿠폰이 없습니다</div>
+                        <div class="empty-message">
+                            포인트를 모아서<br>
+                            카페 쿠폰으로 교환해보세요!
+                        </div>
+                        <a href="/exchange" class="exchange-link-btn">쿠폰 교환하러 가기</a>
+                    </div>
+                `;
+                return;
+            }
+
+            couponCount.textContent = coupons.length;
+
+            const couponList = coupons.map(coupon => {
+                const status = coupon.status.toLowerCase();
+                const statusText = status === 'approved' ? '사용가능' : '사용완료';
+                const requestedDate = new Date(coupon.requested_at).toLocaleDateString('ko-KR');
+                const pointsUsed = 300;
+
+                return `
+                    <div class="coupon-card ${status}" onclick='showCouponDetail(${JSON.stringify(coupon)})'>
+                        <div class="coupon-header">
+                            <div class="coupon-title">☕ 카페 MORE 1000원 할인쿠폰</div>
+                            <div class="status-badge ${status}">${statusText}</div>
+                        </div>
+                        <div class="coupon-info">
+                            <div class="info-row">
+                                <span class="info-label">교환 포인트</span>
+                                <span class="info-value">${pointsUsed}p</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">교환일</span>
+                                <span class="info-value">${requestedDate}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">만료일</span>
+                                <span class="info-value">2026. 2.14.</span>
+                            </div>
+                        </div>
+                        <div class="coupon-divider"></div>
+                        <div class="coupon-footer">
+                            <span>${status === 'approved' ? '클릭하여 사용하기' : '사용 완료됨'}</span>
+                            <span>${status === 'approved' ? '✓ 사용가능' : '✓ 사용완료'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `<div class="coupon-list">${couponList}</div>`;
+        }
+
+        function showCouponDetail(coupon) {
+            currentCoupon = coupon;
+            const modal = document.getElementById('couponModal');
+            const modalBody = document.getElementById('modalBody');
+            const modalButtons = document.getElementById('modalButtons');
+
+            const requestedDate = new Date(coupon.requested_at).toLocaleDateString('ko-KR');
+            const usedDate = coupon.used_at ? new Date(coupon.used_at).toLocaleDateString('ko-KR') : null;
+            const isUsed = coupon.status.toLowerCase() === 'used';
+            const pointsUsed = 300;
+
+            modalBody.innerHTML = `
+                ${isUsed ? `
+                    <div class="used-notice">
+                        <div class="used-notice-text">이 쿠폰은 이미 사용 완료되었습니다</div>
+                    </div>
+                ` : ''}
+                <div class="modal-info">
+                    <div class="modal-info-row">
+                        <span class="modal-info-label">교환 포인트</span>
+                        <span class="modal-info-value">${pointsUsed}p</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <span class="modal-info-label">교환일</span>
+                        <span class="modal-info-value">${requestedDate}</span>
+                    </div>
+                    ${usedDate ? `
+                        <div class="modal-info-row">
+                            <span class="modal-info-label">사용일</span>
+                            <span class="modal-info-value">${usedDate}</span>
+                        </div>
+                    ` : ''}
+                    <div class="modal-info-row">
+                        <span class="modal-info-label">만료일</span>
+                        <span class="modal-info-value">2026. 2.14.</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <span class="modal-info-label">쿠폰 번호</span>
+                        <span class="modal-info-value">#${String(coupon.id).padStart(6, '0')}</span>
+                    </div>
+                </div>
+            `;
+
+            if (isUsed) {
+                modalButtons.innerHTML = `
+                    <button class="modal-btn cancel-btn" onclick="closeModal()">닫기</button>
+                `;
+            } else {
+                modalButtons.innerHTML = `
+                    <button class="modal-btn cancel-btn" onclick="closeModal()">취소</button>
+                    <button class="modal-btn use-btn" onclick="useCoupon()">사용 완료</button>
+                `;
+            }
+
+            modal.classList.add('show');
+        }
+
+        async function useCoupon() {
+            if (!currentCoupon) return;
+
+            if (!confirm('이 쿠폰을 사용 완료 처리하시겠습니까?\n사용 완료 후에는 취소할 수 없습니다.')) {
+                return;
+            }
+
+            const token = localStorage.getItem('access_token');
+
+            try {
+                const response = await fetch(API_BASE + `/api/exchange/${currentCoupon.id}/use`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (response.ok) {
+                    alert('✅ 쿠폰이 사용 완료되었습니다!');
+                    closeModal();
+                    loadCoupons();
+                } else {
+                    const data = await response.json();
+                    alert('사용 처리 실패: ' + (data.detail || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                console.error('쿠폰 사용 처리 오류:', error);
+                alert('서버와 연결할 수 없습니다.');
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('couponModal');
+            modal.classList.remove('show');
+            currentCoupon = null;
+        }
+
+        function showError() {
+            const container = document.getElementById('couponListContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">⚠️</div>
+                    <div class="empty-title">오류가 발생했습니다</div>
+                    <div class="empty-message">
+                        잠시 후 다시 시도해주세요
+                    </div>
+                </div>
+            `;
+        }
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_name');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

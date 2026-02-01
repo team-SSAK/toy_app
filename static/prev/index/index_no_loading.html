@@ -333,40 +333,11 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
-            position: relative;
         }
 
-        .save-btn:hover:not(:disabled) {
+        .save-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .save-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .save-btn.loading {
-            color: transparent;
-        }
-
-        .save-btn.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            margin-left: -10px;
-            margin-top: -10px;
-            border: 3px solid #56ab2f;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spinner 0.8s linear infinite;
-        }
-
-        @keyframes spinner {
-            to { transform: rotate(360deg); }
         }
 
         .loading {
@@ -637,19 +608,6 @@
                 return;
             }
 
-            // [수정 1] DOM 요소 가져오기
-            const saveBtn = document.querySelector('.save-btn');
-            const saveMsg = document.querySelector('.save-message');
-
-            // [수정 2] 로딩 상태 시작 (UI 업데이트)
-            if (saveBtn) {
-                saveBtn.classList.add('loading'); // CSS의 .save-btn.loading 스타일 적용 (스피너 표시)
-                saveBtn.disabled = true;          // 중복 클릭 방지
-            }
-            if (saveMsg) {
-                saveMsg.textContent = "⏳ 서버에 저장 중입니다..."; // 메시지 변경
-            }
-
             const formData = new FormData();
             formData.append('file', currentResultData.blob, 'capture.jpg');
 
@@ -686,16 +644,6 @@
             } catch (error) {
                 console.error('저장 오류:', error);
                 alert('저장 중 오류가 발생했습니다.');
-            } finally {
-                // [수정 3] 로딩 상태 해제 (성공하든 실패하든 실행됨)
-                // 만약 성공해서 섹션이 사라졌다면 의미 없지만, 실패했을 때를 위해 필요합니다.
-                if (saveBtn) {
-                    saveBtn.classList.remove('loading');
-                    saveBtn.disabled = false;
-                }
-                if (saveMsg) {
-                    saveMsg.textContent = "이 결과를 저장하시겠습니까?"; // 원래 메시지로 복구
-                }
             }
         }
 
@@ -748,10 +696,7 @@
                     <div class="result-title">잔반 측정 결과</div>
                     <div class="result-ratio">${ratio}%</div>
                     ${earnedPoints > 0 ? `<div class="result-points">+${earnedPoints}p 적립 예정</div>` : ''}
-                    <div class="save-message" style="color: white; font-size: 16px; margin: 20px 0;">
-                        ⏳ 잠시만 기다려주세요...<br>
-                        측정 결과를 저장하고 있습니다
-                    </div>
+                    <div class="loading">저장 중입니다...</div>
                 `;
 
                 await saveResult();
