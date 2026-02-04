@@ -132,6 +132,9 @@ async def predict_with_save(
             "leftover_ratio": float(ratio),
             "image_url": image_url
         }
+    except ValueError as e:
+        # 이미 측정한 경우
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         import traceback
         print("ERROR:", traceback.format_exc())

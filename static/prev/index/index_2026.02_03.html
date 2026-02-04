@@ -91,7 +91,7 @@
             box-shadow: 0 10px 30px rgba(45, 122, 62, 0.4);
             margin-bottom: 20px;
             width: 100%;
-            display: none; /* 로그인 시에만 표시 */
+            display: none;
             border: 3px solid rgba(255, 255, 255, 0.3);
         }
 
@@ -414,237 +414,9 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
         }
-
-        /* 안내 팝업 스타일 */
-        .welcome-modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            animation: fadeIn 0.3s;
-        }
-
-        .welcome-modal.show {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .welcome-content {
-            background: white;
-            padding: 35px 30px;
-            border-radius: 20px;
-            max-width: 450px;
-            width: 100%;
-            /*추가한 부분*/
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s;
-        }
-
-        .welcome-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .welcome-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .welcome-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2d7a3e;
-            margin-bottom: 8px;
-        }
-
-        .welcome-steps {
-            background: #f7fafc;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .step-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .step-number {
-            flex-shrink: 0;
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .step-text {
-            flex: 1;
-            padding-top: 3px;
-        }
-
-        .step-title {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 15px;
-            margin-bottom: 3px;
-        }
-
-        .step-desc {
-            font-size: 13px;
-            color: #718096;
-            line-height: 1.4;
-        }
-
-        .welcome-notice {
-            background: #fff5f5;
-            border-left: 4px solid #fc8181;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .notice-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #c53030;
-            margin-bottom: 5px;
-        }
-
-        .notice-text {
-            font-size: 12px;
-            color: #742a2a;
-            line-height: 1.5;
-        }
-
-        .welcome-footer {
-            text-align: center;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .welcome-footer-text {
-            font-size: 14px;
-            color: #4a5568;
-            margin-bottom: 8px;
-        }
-
-        .welcome-signature {
-            font-size: 13px;
-            color: #2d7a3e;
-            font-weight: 600;
-        }
-
-        .welcome-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
-        }
-
-        .welcome-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- 안내 팝업 -->
-    <div class="welcome-modal" id="welcomeModal">
-        <div class="welcome-content">
-            <div class="welcome-header">
-                <div class="welcome-icon">🌱</div>
-                <div class="welcome-title">SSAK 쿠폰 교환방법</div>
-            </div>
-
-            <div class="welcome-steps">
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-text">
-                        <div class="step-title">결과 저장하기</div>
-                        <div class="step-desc">측정 결과를 저장하면 포인트가 적립됩니다</div>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-text">
-                        <div class="step-title">포인트 교환하기</div>
-                        <div class="step-desc">300p 이상 모으면 커피 쿠폰으로 교환 가능!</div>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-text">
-                        <div class="step-title">내 쿠폰함 확인</div>
-                        <div class="step-desc">교환한 쿠폰은 마이 쿠폰함에서 확인하세요</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="welcome-notice">
-                <div class="notice-title">💡 안내사항</div>
-                <div class="notice-text">
-                    인식이 잘못된 경우 1일 내에 자동으로 수정됩니다.<br>
-                    <b>해당 캠페인에서 교환 가능한 쿠폰은 반 값이 아닌 아메리카노 한 잔으로 변경되었습니다.</b><br>
-                    문의사항은 하단의 카카오톡 오픈채팅으로 연락주세요.
-                </div>
-            </div>
-
-            <div class="welcome-footer">
-                <div class="welcome-footer-text">SSAK 캠페인에 참여해주셔서 감사합니다</div>
-                <div class="welcome-signature">🌱 SSAK 일동</div>
-            </div>
-
-            <button class="welcome-btn" onclick="closeWelcomeModal()">
-                ✅ 확인했습니다
-            </button>
-        </div>
-    </div>
-
     <div class="navbar">
         <div class="navbar-left">
             <span class="eco-badge">🌱</span>
@@ -666,12 +438,12 @@
                 <div class="user-greeting" id="userGreeting">환영합니다 👋</div>
             </div>
             <div class="points-buttons">
-            <button class="exchange-btn-large" onclick="goToExchange()">
+                <button class="exchange-btn-large" onclick="goToExchange()">
                     ☕ 쿠폰 교환
                 </button>
                 <button class="coupon-btn" onclick="goToCoupons()">
                     🎫 마이 쿠폰함
-            </button>
+                </button>
             </div>
         </div>
         
@@ -716,10 +488,7 @@
 
         let currentResultData = null;
 
-        // 페이지 로드 시
         window.addEventListener('DOMContentLoaded', () => {
-            // 첫 방문자 체크
-            checkFirstVisit();
             checkLoginStatus();
             startCamera();
             processPendingResult();
@@ -727,7 +496,7 @@
 
         async function checkLoginStatus() {
             const token = localStorage.getItem('access_token');
-            
+
             if (token) {
                 try {
                     const response = await fetch(API_BASE + '/api/user/info', {
@@ -763,25 +532,6 @@
             }
         }
 
-        // 첫 방문 체크 및 안내 팝업 표시
-        function checkFirstVisit() {
-            const hasVisited = localStorage.getItem('ssak_visited');
-            
-            if (!hasVisited) {
-                // 첫 방문자면 팝업 표시
-                setTimeout(() => {
-                    document.getElementById('welcomeModal').classList.add('show');
-                }, 500); // 0.5초 후 팝업 표시
-            }
-        }
-
-        // 안내 팝업 닫기
-        function closeWelcomeModal() {
-            document.getElementById('welcomeModal').classList.remove('show');
-            // 다시 보지 않기 위해 로컬 스토리지에 저장
-            localStorage.setItem('ssak_visited', 'true');
-        }
-
         function calculatePoints(ratio) {
             const percentage = ratio * 100;
             if (percentage > 80 && percentage <= 100) {
@@ -794,7 +544,6 @@
             return 0;
         }
 
-        // 카메라 시작
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -1024,7 +773,6 @@
             window.location.href = '/login';
         }
 
-        // 로그아웃
         function logout() {
             if (video.srcObject) {
                 video.srcObject.getTracks().forEach(track => track.stop());

@@ -172,9 +172,9 @@ class DatabaseManager:
         """
         percentage = leftover_ratio * 100
 
-        if 90 < percentage <= 100:
+        if 80 < percentage <= 100:
             return 100
-        elif 70 < percentage <= 90:
+        elif 70 < percentage <= 80:
             return 50
         elif 50 < percentage <= 70:
             return 10
@@ -184,25 +184,36 @@ class DatabaseManager:
     def save_measurement(self, user_id: int, image_url: str, leftover_ratio: float) -> Dict:
         """
         측정 결과 저장 및 측정 횟수 증가, 포인트 적립
-        
         Args:
             user_id: 사용자 ID
             image_url: S3 이미지 URL
             leftover_ratio: 잔반 비율
-        
         Returns:
             저장된 측정 ID와 적립된 포인트 딕셔너리
         """
         conn = self.get_connection()
         try:
             with conn.cursor() as cursor:
+                # 오늘 이미 측정했는지 확인
+                cursor.execute("""
+                    SELECT COUNT(*) as cnt
+                    FROM measurements
+                    WHERE user_id = %s AND DATE(measured_at) = CURDATE()
+                """, (user_id,))
+                
+                result = cursor.fetchone()
+                today_count = result['cnt'] if result else 0
+                
+                if today_count > 0:
+                    raise ValueError("오늘 이미 측정을 완료하셨습니다. 내일 다시 시도해주세요!")
+                
                 # 포인트 계산
                 earned_points = self.calculate_points(leftover_ratio)
-
+                
                 # 측정 결과 저장
                 cursor.execute(
                     """INSERT INTO measurements (user_id, image_url, leftover_ratio) 
-                       VALUES (%s, %s, %s)""",
+                    VALUES (%s, %s, %s)""",
                     (user_id, image_url, leftover_ratio)
                 )
                 measurement_id = cursor.lastrowid
@@ -212,11 +223,15 @@ class DatabaseManager:
                     "UPDATE users SET measure_cnt = measure_cnt + 1, point = point + %s WHERE id = %s",
                     (earned_points, user_id)
                 )
+                
             conn.commit()
             return {
                 "measurement_id": measurement_id,
                 "earned_points": earned_points
             }
+        except ValueError as e:
+            # ValueError는 롤백하지 않고 그대로 raise (이미 측정한 경우)
+            raise e
         except Exception as e:
             conn.rollback()
             raise Exception(f"측정 결과 저장 실패: {str(e)}")
