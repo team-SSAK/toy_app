@@ -51,6 +51,8 @@ class MMSegService:
         # mmseg는 파일 경로로 inference 하는 게 제일 안정적이라
         # 여기서는 PIL 이미지를 numpy로 바꿔서 바로 넣는 방식 사용(대부분 동작)
         img_np = np.array(image.convert("RGB"))
+        h, w = img_np.shape[:2]
+        img_area = h * w
 
         result = inference_model(self.model, img_np)
         pred = result.pred_sem_seg.data.squeeze().cpu().numpy().astype(np.int32)  # (H, W)
@@ -59,7 +61,20 @@ class MMSegService:
         plate_pixels = int((pred == self.PLATE).sum())
         total = leftover_pixels + plate_pixels
 
+        # --------------------------
+        # 1) 완전 미검출
+        # --------------------------
         if total == 0:
             return 0.0
+        
+        # --------------------------
+        # 2) edge case: 접시 면적이 너무 작음
+        # --------------------------
+        total_area_ratio = total / img_area
 
+        MIN_TOTAL_AREA_RATIO = 0.01  # 1% (너무 빡세면 0.005로)
+
+        if total_area_ratio < MIN_TOTAL_AREA_RATIO:
+            return 0.0
+        
         return leftover_pixels / total
