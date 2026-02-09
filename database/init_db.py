@@ -28,6 +28,7 @@ def init_database():
                     measure_cnt INT DEFAULT 0,
                     point INT DEFAULT 0,
                     mealSize VARCHAR(50),
+                    referrerPhoneNum VARCHAR(20) DEFAULT NULL,
                     UNIQUE KEY unique_name_phone (name, phoneNum)
                 )
             """)

@@ -121,35 +121,6 @@
             color: #a0aec0;
         }
 
-        .optional-label {
-            color: #718096;
-            font-size: 13px;
-            font-weight: 400;
-            margin-left: 6px;
-        }
-
-        .referral-benefit {
-            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-            border: 2px solid #fdcb6e;
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .referral-benefit-icon {
-            font-size: 24px;
-        }
-
-        .referral-benefit-text {
-            font-size: 13px;
-            font-weight: 600;
-            color: #2d3748;
-            line-height: 1.4;
-        }
-
         .meal-size-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -347,141 +318,6 @@
             margin-bottom: 15px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
-
-        /* 이벤트 팝업 스타일 */
-        .event-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .event-modal.show {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .event-modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 100%;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .event-header {
-            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-        }
-
-        .event-badge {
-            display: inline-block;
-            background: white;
-            color: #ff6b6b;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .event-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .event-subtitle {
-            font-size: 15px;
-            opacity: 0.95;
-        }
-
-        .event-body {
-            padding: 30px 25px;
-        }
-
-        .event-item {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #56ab2f;
-        }
-
-        .event-item-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .event-item-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-
-        .event-item-desc {
-            font-size: 14px;
-            color: #4a5568;
-            line-height: 1.5;
-        }
-
-        .event-highlight {
-            color: #ff6b6b;
-            font-weight: 700;
-        }
-
-        .event-footer {
-            padding: 0 25px 25px;
-        }
-
-        .event-close-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .event-close-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4);
-        }
-
-        .event-period {
-            text-align: center;
-            color: #718096;
-            font-size: 13px;
-            margin-top: 15px;
-            font-weight: 500;
-        }
     </style>
 </head>
 <body>
@@ -528,21 +364,6 @@
                         <input type="tel" id="register-phone" placeholder="01012345678" required pattern="[0-9]{10,11}">
                     </div>
 
-                    <!-- 추천인 전화번호 -->
-                    <div class="form-group">
-                        <label for="referrer-phone">
-                            🎁 추천인 전화번호
-                            <span class="optional-label">(선택)</span>
-                        </label>
-                        <input type="tel" id="referrer-phone" placeholder="추천인의 전화번호를 입력하세요" pattern="[0-9]{10,11}">
-                        <div class="referral-benefit">
-                            <span class="referral-benefit-icon">💰</span>
-                            <span class="referral-benefit-text">
-                                추천인이 있다면 추천인에게 100포인트가 지급됩니다!
-                            </span>
-                        </div>
-                    </div>
-
                     <!-- 식사량 선택 -->
                     <div class="form-group">
                         <label>🍚 평소 식사량</label>
@@ -587,14 +408,6 @@
 
     <script>
         const API_BASE = window.location.origin;
-
-        // 페이지 로드 시
-        window.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('access_token');
-            if (token) {
-                window.location.href = '/';
-            }
-        });
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -653,17 +466,11 @@
             
             const name = document.getElementById('register-name').value.trim();
             const phoneNum = document.getElementById('register-phone').value.replace(/[^0-9]/g, '');
-            const referrerPhone = document.getElementById('referrer-phone').value.replace(/[^0-9]/g, '');
             const mealSize = document.getElementById('meal-size').value;
             const privacyAgree = document.getElementById('privacy-agree').checked;
 
             if (phoneNum.length < 10 || phoneNum.length > 11) {
                 showAlert('올바른 전화번호를 입력해주세요.', 'error');
-                return;
-            }
-
-            if (referrerPhone && (referrerPhone.length < 10 || referrerPhone.length > 11)) {
-                showAlert('추천인 전화번호 형식이 올바르지 않습니다.', 'error');
                 return;
             }
 
@@ -678,31 +485,16 @@
             }
 
             try {
-                const registerData = {
-                    name,
-                    phoneNum,
-                    mealSize
-                };
-
-                // 추천인 전화번호가 있으면 추가
-                if (referrerPhone) {
-                    registerData.referrerPhoneNum = referrerPhone;
-                }
-
                 const registerResponse = await fetch(API_BASE + '/api/register', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(registerData)
+                    body: JSON.stringify({ name, phoneNum, mealSize })
                 });
 
-                const registerResult = await registerResponse.json();
+                const registerData = await registerResponse.json();
 
                 if (registerResponse.ok) {
-                    if (referrerPhone) {
-                        showAlert('✅ 회원가입 성공! 추천인에게 100포인트가 지급되었습니다.', 'success');
-                    } else {
-                        showAlert('✅ 회원가입 성공!', 'success');
-                    }
+                    showAlert('✅ 회원가입 성공!', 'success');
                     
                     setTimeout(async () => {
                         const loginResponse = await fetch(API_BASE + '/api/login/with-name', {
@@ -718,9 +510,9 @@
                             localStorage.setItem('user_name', name);
                             window.location.href = '/';
                         }
-                    }, 1500);
+                    }, 1000);
                 } else {
-                    showAlert('❌ ' + (registerResult.detail || '회원가입 실패'), 'error');
+                    showAlert('❌ ' + (registerData.detail || '회원가입 실패'), 'error');
                 }
             } catch (error) {
                 showAlert('❌ 서버 연결 실패', 'error');
@@ -744,6 +536,13 @@
         }
 
         document.getElementById('privacy-agree').addEventListener('change', checkRegisterButton);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                window.location.href = '/';
+            }
+        });
     </script>
 </body>
 </html>

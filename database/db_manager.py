@@ -28,7 +28,7 @@ class DatabaseManager:
         """데이터베이스 연결 생성"""
         return pymysql.connect(**self.db_config)
     
-    def create_user(self, name: str, phone_num: str, mealSize: str) -> int:
+    def create_user(self, name: str, phone_num: str, mealSize: str, referrerPhoneNum: str = None) -> int:
         """
         사용자 생성
         
@@ -36,6 +36,7 @@ class DatabaseManager:
             name: 사용자 이름
             phone_num: 전화번호
             mealSize: 식사량
+            referrerPhoneNum: 추천인 전화번호 (선택)
         
         Returns:
             생성된 사용자 ID
@@ -53,11 +54,30 @@ class DatabaseManager:
                 )
                 if cursor.fetchone():
                     raise ValueError("이미 등록된 이름과 전화번호 조합입니다.")
+
+                # 빈 문자열을 None으로 변환
+                if referrerPhoneNum == "" or referrerPhoneNum is None:
+                    referrerPhoneNum = None
+                
+                # 추천인 전화번호 유효성 검사
+                if referrerPhoneNum:
+                    cursor.execute(
+                        "SELECT id FROM users WHERE phoneNum = %s",
+                        (referrerPhoneNum,)
+                    )
+                    if not cursor.fetchone():
+                        raise ValueError("유효하지 않은 추천인 전화번호입니다.")
+                    
+                    # 추천인 포인트 적립
+                    cursor.execute(
+                        "UPDATE users SET point = point + 100 WHERE phoneNum = %s",
+                        (referrerPhoneNum,)
+                    )
                 
                 # 사용자 등록
                 cursor.execute(
-                    "INSERT INTO users (name, phoneNum, mealSize) VALUES (%s, %s, %s)",
-                    (name, phone_num, mealSize)
+                    "INSERT INTO users (name, phoneNum, mealSize, referrerPhoneNum) VALUES (%s, %s, %s, %s)",
+                    (name, phone_num, mealSize, referrerPhoneNum)
                 )
                 user_id = cursor.lastrowid
             conn.commit()
@@ -66,6 +86,7 @@ class DatabaseManager:
             raise
         except Exception as e:
             conn.rollback()
+            print(f"❌ DB 에러 상세: {str(e)}")  # ✅ 디버깅용 로그 추가
             raise Exception(f"사용자 생성 실패: {str(e)}")
         finally:
             conn.close()

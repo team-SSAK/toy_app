@@ -75,11 +75,13 @@ async def coupons_page():
 async def register(user: UserRegister):
     """회원가입"""
     try:
-        db_manager.create_user(user.name, user.phoneNum, user.mealSize)
+        referrerPhoneNum = user.referrerPhoneNum if user.referrerPhoneNum and user.referrerPhoneNum.strip() else None
+        db_manager.create_user(user.name, user.phoneNum, user.mealSize, referrerPhoneNum)
         return {"message": "회원가입이 완료되었습니다."}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        print(f"❌ 회원가입 에러: {str(e)}")  # ✅ 디버깅용 로그
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/login", response_model=Token)
