@@ -3,11 +3,12 @@ from pydantic import BaseModel
 # 회원가입 및 인증 관련 스키마
 class UserRegister(BaseModel):
     """
-    회원가입 요청 스키마 (users 테이블의 name, phoneNum, mealSize와 일치)
+    회원가입 요청 스키마 (users 테이블의 name, phoneNum, mealSize와 일치, referrerPhoneNum 포함)
     """
     name: str
     phoneNum: str
     mealSize: str
+    referrerPhoneNum: str | None = None
 
 class UserLogin(BaseModel):
     """

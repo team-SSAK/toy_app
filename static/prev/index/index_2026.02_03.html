@@ -18,195 +18,6 @@
             padding: 20px;
         }
 
-        /* 이벤트 팝업 스타일 */
-        .event-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-            padding: 20px;
-        }
-
-        .event-modal.show {
-            display: flex;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .event-modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 420px;
-            width: 100%;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            animation: slideUp 0.3s ease;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .event-header {
-            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
-            color: white;
-            padding: 35px 25px;
-            text-align: center;
-            position: relative;
-        }
-
-        .event-badge {
-            display: inline-block;
-            background: white;
-            color: #ff6b6b;
-            padding: 8px 18px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-
-        .event-title {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .event-subtitle {
-            font-size: 16px;
-            opacity: 0.95;
-            font-weight: 500;
-        }
-
-        .event-body {
-            padding: 30px 25px;
-        }
-
-        .event-item {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 22px;
-            margin-bottom: 15px;
-            border-left: 5px solid #56ab2f;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .event-item-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .event-item-icon {
-            font-size: 36px;
-        }
-
-        .event-item-title {
-            font-size: 19px;
-            font-weight: 700;
-            color: #2d3748;
-        }
-
-        .event-item-desc {
-            font-size: 15px;
-            color: #4a5568;
-            line-height: 1.6;
-        }
-
-        .event-highlight {
-            color: #ff6b6b;
-            font-weight: 800;
-            font-size: 17px;
-        }
-
-        .event-footer {
-            padding: 0 25px 30px;
-        }
-
-        .event-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .event-close-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
-        }
-
-        .event-close-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4);
-        }
-
-        .event-no-show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px;
-            background: #f7fafc;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .event-no-show:hover {
-            background: #edf2f7;
-        }
-
-        .event-no-show input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .event-no-show label {
-            font-size: 14px;
-            color: #4a5568;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .event-period {
-            text-align: center;
-            color: #718096;
-            font-size: 13px;
-            margin-top: 15px;
-            font-weight: 500;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         .navbar {
             background: white;
             padding: 18px 30px;
@@ -280,7 +91,7 @@
             box-shadow: 0 10px 30px rgba(45, 122, 62, 0.4);
             margin-bottom: 20px;
             width: 100%;
-            display: none; /* 로그인 시에만 표시 */
+            display: none;
             border: 3px solid rgba(255, 255, 255, 0.3);
         }
 
@@ -603,264 +414,9 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
         }
-
-        /* 안내 팝업 스타일 */
-        .welcome-modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-        }
-
-        .welcome-modal.show {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .welcome-content {
-            background: white;
-            padding: 35px 30px;
-            border-radius: 20px;
-            max-width: 450px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s;
-        }
-
-        .welcome-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .welcome-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .welcome-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2d7a3e;
-            margin-bottom: 8px;
-        }
-
-        .welcome-steps {
-            background: #f7fafc;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .step-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .step-number {
-            flex-shrink: 0;
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .step-text {
-            flex: 1;
-            padding-top: 3px;
-        }
-
-        .step-title {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 15px;
-            margin-bottom: 3px;
-        }
-
-        .step-desc {
-            font-size: 13px;
-            color: #718096;
-            line-height: 1.4;
-        }
-
-        .welcome-notice {
-            background: #fff5f5;
-            border-left: 4px solid #fc8181;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .notice-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #c53030;
-            margin-bottom: 5px;
-        }
-
-        .notice-text {
-            font-size: 12px;
-            color: #742a2a;
-            line-height: 1.5;
-        }
-
-        .welcome-footer {
-            text-align: center;
-            padding-top: 15px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .welcome-footer-text {
-            font-size: 14px;
-            color: #4a5568;
-            margin-bottom: 8px;
-        }
-
-        .welcome-signature {
-            font-size: 13px;
-            color: #2d7a3e;
-            font-weight: 600;
-        }
-
-        .welcome-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 20px;
-            box-shadow: 0 4px 10px rgba(86, 171, 47, 0.3);
-        }
-
-        .welcome-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(86, 171, 47, 0.4);
-        }
     </style>
 </head>
 <body>
-    <!-- 이벤트 팝업 -->
-    <div class="event-modal" id="event-modal">
-        <div class="event-modal-content">
-            <div class="event-header">
-                <div class="event-badge">🎉 특별 이벤트</div>
-                <h2 class="event-title">2/10 포인트 두배!</h2>
-                <p class="event-subtitle">친구 추천하고 보너스 받으세요</p>
-            </div>
-            <div class="event-body">
-                <div class="event-item">
-                    <div class="event-item-header">
-                        <div class="event-item-icon">🎁</div>
-                        <div class="event-item-title">2/10 포인트 2배</div>
-                    </div>
-                    <div class="event-item-desc">
-                        2월 10일 하루 동안 적립되는<br>
-                        포인트가 <span class="event-highlight">2배</span>로 지급됩니다!
-                    </div>
-                </div>
-                <div class="event-item">
-                    <div class="event-item-header">
-                        <div class="event-item-icon">👥</div>
-                        <div class="event-item-title">친구 추천 이벤트</div>
-                    </div>
-                    <div class="event-item-desc">
-                        회원가입 시 추천인 전화번호를 입력하면<br>
-                        추천인에게 <span class="event-highlight">100포인트</span> 즉시 지급!
-                    </div>
-                </div>
-            </div>
-            <div class="event-footer">
-                <div class="event-buttons">
-                    <button class="event-close-btn" onclick="closeEventModal()">
-                        확인했어요
-                    </button>
-                    <div class="event-no-show" onclick="toggleNoShowCheckbox()">
-                        <input type="checkbox" id="event-no-show-check">
-                        <label for="event-no-show-check">오늘 하루 보지 않기</label>
-                    </div>
-                </div>
-                <!-- <p class="event-period">이벤트 기간: 2025.02.10 ~ 2025.02.14</p> -->
-            </div>
-        </div>
-    </div>
-
-    <!-- 안내 팝업 -->
-    <div class="welcome-modal" id="welcomeModal">
-        <div class="welcome-content">
-            <div class="welcome-header">
-                <div class="welcome-icon">🌱</div>
-                <div class="welcome-title">SSAK 쿠폰 교환방법</div>
-            </div>
-
-            <div class="welcome-steps">
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-text">
-                        <div class="step-title">결과 저장하기</div>
-                        <div class="step-desc">측정 결과를 저장하면 포인트가 적립됩니다</div>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-text">
-                        <div class="step-title">포인트 교환하기</div>
-                        <div class="step-desc">300p 이상 모으면 커피 쿠폰으로 교환 가능!</div>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-text">
-                        <div class="step-title">내 쿠폰함 확인</div>
-                        <div class="step-desc">교환한 쿠폰은 마이 쿠폰함에서 확인하세요</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="welcome-notice">
-                <div class="notice-title">💡 안내사항</div>
-                <div class="notice-text">
-                    인식이 잘못된 경우 1일 내에 자동으로 수정됩니다.<br>
-                    <b>해당 캠페인에서 교환 가능한 쿠폰은 반 값이 아닌 아메리카노 한 잔으로 변경되었습니다.</b><br>
-                    문의사항은 하단의 카카오톡 오픈채팅으로 연락주세요.
-                </div>
-            </div>
-
-            <div class="welcome-footer">
-                <div class="welcome-footer-text">SSAK 캠페인에 참여해주셔서 감사합니다</div>
-                <div class="welcome-signature">🌱 SSAK 일동</div>
-            </div>
-
-            <button class="welcome-btn" onclick="closeWelcomeModal()">
-                ✅ 확인했습니다
-            </button>
-        </div>
-    </div>
-
     <div class="navbar">
         <div class="navbar-left">
             <span class="eco-badge">🌱</span>
@@ -932,53 +488,15 @@
 
         let currentResultData = null;
 
-        // 페이지 로드 시
         window.addEventListener('DOMContentLoaded', () => {
-            // 첫 방문자 체크
-            checkFirstVisit();
             checkLoginStatus();
             startCamera();
             processPendingResult();
-            checkEventModal();
         });
-
-        // 이벤트 팝업 체크
-        function checkEventModal() {
-            const today = new Date().toDateString();
-            const eventNoShowDate = localStorage.getItem('event_no_show_date');
-            
-            // "오늘 하루 보지 않기"를 체크했고, 그날이 오늘이면 표시 안함
-            if (eventNoShowDate === today) {
-                return;
-            }
-            
-            // 이벤트 팝업 표시
-            setTimeout(() => {
-                document.getElementById('event-modal').classList.add('show');
-            }, 800);
-        }
-
-        // 이벤트 팝업 닫기
-        function closeEventModal() {
-            const noShowCheck = document.getElementById('event-no-show-check');
-            
-            if (noShowCheck.checked) {
-                const today = new Date().toDateString();
-                localStorage.setItem('event_no_show_date', today);
-            }
-            
-            document.getElementById('event-modal').classList.remove('show');
-        }
-
-        // 체크박스 토글
-        function toggleNoShowCheckbox() {
-            const checkbox = document.getElementById('event-no-show-check');
-            checkbox.checked = !checkbox.checked;
-        }
 
         async function checkLoginStatus() {
             const token = localStorage.getItem('access_token');
-            
+
             if (token) {
                 try {
                     const response = await fetch(API_BASE + '/api/user/info', {
@@ -1012,25 +530,6 @@
                     console.error('사용자 정보 조회 오류:', error);
                 }
             }
-        }
-
-        // 첫 방문 체크 및 안내 팝업 표시
-        function checkFirstVisit() {
-            const hasVisited = localStorage.getItem('ssak_visited');
-            
-            if (!hasVisited) {
-                // 첫 방문자면 팝업 표시
-                setTimeout(() => {
-                    document.getElementById('welcomeModal').classList.add('show');
-                }, 500); // 0.5초 후 팝업 표시
-            }
-        }
-
-        // 안내 팝업 닫기
-        function closeWelcomeModal() {
-            document.getElementById('welcomeModal').classList.remove('show');
-            // 다시 보지 않기 위해 로컬 스토리지에 저장
-            localStorage.setItem('ssak_visited', 'true');
         }
 
         function calculatePoints(ratio) {
@@ -1148,7 +647,7 @@
                 saveBtn.disabled = true;          // 중복 클릭 방지
             }
             if (saveMsg) {
-                saveMsg.textContent = "⏳ 서버에 저장 중입니다...";
+                saveMsg.textContent = "⏳ 서버에 저장 중입니다..."; // 메시지 변경
             }
 
             const formData = new FormData();
@@ -1195,7 +694,7 @@
                     saveBtn.disabled = false;
                 }
                 if (saveMsg) {
-                    saveMsg.textContent = "이 결과를 저장하시겠습니까?";
+                    saveMsg.textContent = "이 결과를 저장하시겠습니까?"; // 원래 메시지로 복구
                 }
             }
         }
@@ -1274,7 +773,6 @@
             window.location.href = '/login';
         }
 
-        // 로그아웃
         function logout() {
             if (video.srcObject) {
                 video.srcObject.getTracks().forEach(track => track.stop());
