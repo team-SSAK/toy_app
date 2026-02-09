@@ -168,8 +168,9 @@ async def get_leftover_ratio(file: UploadFile = File(...)):
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents)).convert("RGB")
-        ratio = seg_service.calculate_leftover_ratio(image)
-        return {"leftover_ratio": float(ratio)}
+        result = seg_service.predict(image)
+        return result
+    
     except Exception as e:
         import traceback
         print("ERROR:", traceback.format_exc())
