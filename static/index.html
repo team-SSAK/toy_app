@@ -1075,6 +1075,17 @@
                     const data = await response.json();
 
                     if (response.ok) {
+                        if (data.status === "RETAKE") {
+                            resultSection.classList.remove('has-result');
+                            resultSection.classList.add('show');
+                            resultSection.innerHTML = `
+                                <div class="result-title">📸 다시 촬영해주세요</div>
+                                <div class="result-message" style="color:#2d3748;">
+                                    ${data.message || "식판 전체가 나오게 다시 촬영해주세요."}
+                                </div>
+                            `;
+                            return;
+                        }
                         const ratio = Math.round(data.leftover_ratio * 100);
                         const earnedPoints = calculatePoints(data.leftover_ratio);
                         
