@@ -39,10 +39,10 @@ class MMSegService:
         # 모델 로드 (서버 시작 시 1번만)
         self.model = init_model(self.config_path, self.checkpoint_path, device=self.device)
 
-        # 클래스 인덱스(보통 0=bg, 1=plate, 2=leftover) — 만약 결과 이상하면 여기만 바꾸면 됨
-        self.BG = 0
-        self.PLATE = 1
-        self.LEFTOVER = 2
+        # 클래스 인덱스 0: plate, 1: leftover, 2: background
+        self.PLATE = 0
+        self.LEFTOVER = 1
+        self.BG = 2
 
         # ------- 게이트/스코어 파라미터(init) -------
         self.MIN_PLATE_AREA_RATIO = 0.015  
