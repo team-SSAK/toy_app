@@ -39,10 +39,9 @@ class MMSegService:
         # 모델 로드 (서버 시작 시 1번만)
         self.model = init_model(self.config_path, self.checkpoint_path, device=self.device)
 
-        # 클래스 인덱스(보통 0=bg, 1=plate, 2=leftover) — 만약 결과 이상하면 여기만 바꾸면 됨
-        self.BG = 0
-        self.PLATE = 1
-        self.LEFTOVER = 2
+        self.PLATE = 0
+        self.LEFTOVER = 1
+        self.BG = 2
 
         # ------- 게이트/스코어 파라미터(init) -------
         self.MIN_PLATE_AREA_RATIO = 0.015  
@@ -170,13 +169,14 @@ class MMSegService:
         if not ok:
             return 0.0
 
+        # calculate_leftover_ratio
         if self.USE_WEIGHTED:
-            return float(self._weighted_leftover_ratio(img_np, pred))
+            return 1.0 - float(self._weighted_leftover_ratio(img_np, pred))
 
         leftover_pixels = int((pred == self.LEFTOVER).sum())
         plate_pixels = int((pred == self.PLATE).sum())
         total = leftover_pixels + plate_pixels
-        return 0.0 if total == 0 else (leftover_pixels / float(total))
+        return 0.0 if total == 0 else (1.0 - (leftover_pixels / float(total)))
 
     def predict(self, image: Image.Image) -> Dict[str, Any]:
         img_np = np.array(image.convert("RGB"))
@@ -188,12 +188,12 @@ class MMSegService:
 
         # ratio는 가능한 한 계산
         if self.USE_WEIGHTED:
-            ratio = float(self._weighted_leftover_ratio(img_np, pred))
+            ratio = 1.0 - float(self._weighted_leftover_ratio(img_np, pred))
         else:
             leftover_pixels = int((pred == self.LEFTOVER).sum())
             plate_pixels = int((pred == self.PLATE).sum())
             total = leftover_pixels + plate_pixels
-            ratio = 0.0 if total == 0 else (leftover_pixels / float(total))
+            ratio = 0.0 if total == 0 else (1.0 - (leftover_pixels / float(total)))
 
         # RETAKE는 진짜로 plate가 전혀 없을 때
         if not ok and reason == "no_plate":
