@@ -1,5 +1,6 @@
 import io
 import os
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from fastapi.responses import FileResponse, RedirectResponse
 from PIL import Image
@@ -26,6 +27,7 @@ s3_service = S3Service()
 db_manager = DatabaseManager()
 
 app = FastAPI(title="YOLOv8 잔반 비율 계산 API")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 async def startup_event():
