@@ -1,23 +1,25 @@
-# FastAPI & Server
+# FastAPI
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 
-# Core & Image Processing
+# Core
 numpy==1.26.4
 opencv-python-headless==4.8.1.78
 Pillow
 
-# AWS (S3 업로드용)
+# AWS / DB / Auth
 boto3==1.29.7
-python-dotenv==1.0.0
+pymysql==1.1.0
+PyJWT==2.8.0
 pydantic>=2.7,<3
+python-dotenv==1.0.0
 
-# PyTorch (CPU version - 만약 GPU 서버라면 별도 설정 필요)
+# PyTorch (CPU)
 torch==2.1.2
 torchvision==0.16.2
 
-# OpenMMLab (AI Model)
+# OpenMMLab
 mmengine==0.10.3
 mmcv==2.1.0
 mmdet==3.3.0
