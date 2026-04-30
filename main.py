@@ -1,5 +1,6 @@
 import io
 import os
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from PIL import Image
 

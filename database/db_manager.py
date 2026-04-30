@@ -216,17 +216,17 @@ class DatabaseManager:
         try:
             with conn.cursor() as cursor:
                 # 오늘 이미 측정했는지 확인
-                cursor.execute("""
-                    SELECT COUNT(*) as cnt
-                    FROM measurements
-                    WHERE user_id = %s AND DATE(measured_at) = CURDATE()
-                """, (user_id,))
+                # cursor.execute("""
+                #     SELECT COUNT(*) as cnt
+                #     FROM measurements
+                #     WHERE user_id = %s AND DATE(measured_at) = CURDATE()
+                # """, (user_id,))
                 
-                result = cursor.fetchone()
-                today_count = result['cnt'] if result else 0
+                # result = cursor.fetchone()
+                # today_count = result['cnt'] if result else 0
                 
-                if today_count > 0:
-                    raise ValueError("오늘 이미 측정을 완료하셨습니다. 내일 다시 시도해주세요!")
+                # if today_count > 0:
+                #     raise ValueError("오늘 이미 측정을 완료하셨습니다. 내일 다시 시도해주세요!")
                 
                 # 포인트 계산
                 earned_points = self.calculate_points(leftover_ratio)
