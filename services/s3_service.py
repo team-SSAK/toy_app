@@ -11,6 +11,11 @@ class S3Service:
     
     def __init__(self):
         """S3 클라이언트 초기화"""
+        # 값이 제대로 있는지 체크
+        
+        if not S3_BUCKET_NAME:
+            raise ValueError("S3_BUCKET_NAME 환경 변수나 설정이 누락되었거나 None입니다.")
+
         self.client = boto3.client(
             's3',
             aws_access_key_id=AWS_ACCESS_KEY,
@@ -18,7 +23,7 @@ class S3Service:
             region_name=AWS_REGION
         )
         self.bucket_name = S3_BUCKET_NAME
-    
+
     def upload_image(self, image_data: bytes, filename: str = None) -> str:
         """
         S3에 이미지 업로드 후 URL 반환

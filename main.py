@@ -3,6 +3,7 @@ import os
 from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from PIL import Image
+from fastapi.responses import JSONResponse
 
 from services.mmseg_service import MMSegService
 from services.s3_service import S3Service
@@ -38,17 +39,26 @@ async def predict_and_upload(file: UploadFile = File(...)):
         
         # 2. 잔반 비율 계산 (AI 추론)
         ratio = seg_service.calculate_leftover_ratio(image)
+        print(f"[PREDICT] 잔반 비율 계산 완료 - ratio: {ratio}")
         
         # 3. S3에 이미지 업로드 (추후 플랫폼 서버에서 조회용)
         # 여기서 업로드하면 플랫폼 서버는 이미지 파일을 직접 다룰 필요가 없어짐
         image_url = s3_service.upload_image(contents)
-        
+        print(f"[PREDICT] S3 이미지 업로드 완료 - url: {image_url}")
+
         # 4. 결과 반환 (자바 서버가 받을 내용)
-        return {
+        response_data = {
             "leftover_ratio": float(ratio),
-            "image_url": image_url,
-            "status": "success"
+            "image_url": image_url
         }
+
+        print(f"[PREDICT] 결과 반환 준비 - data: {response_data}")
+        return JSONResponse(
+            status_code=200,
+            content=response_data,
+            media_type="application/json"
+        )
+        
         
     except Exception as e:
         import traceback
