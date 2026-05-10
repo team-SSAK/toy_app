@@ -10,7 +10,7 @@ from services.s3_service import S3Service
 
 # mmseg 설정
 MMSEG_REPO_ROOT = "models/segmentation_plate_leftover-main"
-CKPT_PATH = "models/best_mIoU_iter_12000.pth"
+CKPT_PATH = "models/best_mIoU_iter_200.pth"
 
 # 서비스 초기화
 print("🚀 모델 서버 시작 중...")
