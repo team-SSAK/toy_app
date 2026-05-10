@@ -41,8 +41,23 @@ async def predict_and_upload(file: UploadFile = File(...)):
         ratio = seg_service.calculate_leftover_ratio(image)
         print(f"[PREDICT] 잔반 비율 계산 완료 - ratio: {ratio}")
         
+        # 2.1 잔반 비율이 음수인 경우는 인식 실패로 간주 (예: 식판이 안 보이는 경우)
+        if ratio < 0:
+            response_data = {
+                "leftover_ratio": -1.0,
+                "image_url": None
+            }
+
+            print(f"[PREDICT] 식판 인식 실패 - data: {response_data}")
+            return JSONResponse(
+                status_code=200,
+                content=response_data,
+                media_type="application/json"
+            )
+
         # 3. S3에 이미지 업로드 (추후 플랫폼 서버에서 조회용)
         # 여기서 업로드하면 플랫폼 서버는 이미지 파일을 직접 다룰 필요가 없어짐
+        # 식판 인식 실패 / 아무 사진이면 S3 업로드 없이 반환
         image_url = s3_service.upload_image(contents)
         print(f"[PREDICT] S3 이미지 업로드 완료 - url: {image_url}")
 
