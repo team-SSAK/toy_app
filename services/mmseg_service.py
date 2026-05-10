@@ -43,8 +43,15 @@ class MMSegService:
         self.BG = 2
 
         # ------- 게이트/스코어 파라미터 -------
-        self.MIN_PLATE_AREA_RATIO = 0.015
-        self.MIN_PLATE_PIXELS = 1500
+        self.MIN_PLATE_AREA_RATIO = 0.08
+        self.MIN_PLATE_PIXELS = 5000
+
+        self.MIN_LARGEST_PLATE_COMPONENT_RATIO = 0.06
+        self.MAX_LARGE_PLATE_COMPONENTS = 4
+        self.MIN_PLATE_FILL_RATIO = 0.25
+
+        self.LEFTOVER_NEAR_PLATE_KERNEL = 25
+        self.MIN_LEFTOVER_NEAR_PLATE_RATIO = 0.7
 
         # severe: 거의 붙어서 잘린 건 RETAKE
         # warn: 살짝 타이트한 건 OK + 경고만
@@ -60,6 +67,116 @@ class MMSegService:
         self.MIN_LEFTOVER_AREA_RATIO = 0.005   # plate 면적의 0.5% 미만 blob 제거
         self.EMPTY_RATIO_SNAP = 0.95           # 95% 이상 비우면 100%로 스냅
 
+    def _plate_shape_gate(self, pred: np.ndarray) -> Tuple[bool, Dict[str, Any]]:
+        plate = (pred == self.PLATE)
+        H, W = pred.shape
+        img_area = H * W
+
+        try:
+            import cv2
+
+            plate_u8 = plate.astype(np.uint8)
+            num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(
+                plate_u8, connectivity=8
+            )
+
+            if num_labels <= 1:
+                return False, {"reason": "no_plate_component"}
+
+            areas = stats[1:, cv2.CC_STAT_AREA]
+            largest_area = int(areas.max())
+            largest_ratio = largest_area / float(img_area + 1e-6)
+
+            large_thr = max(500, int(0.01 * img_area))
+            num_large_components = int((areas >= large_thr).sum())
+
+            largest_idx = int(areas.argmax()) + 1
+            x = int(stats[largest_idx, cv2.CC_STAT_LEFT])
+            y = int(stats[largest_idx, cv2.CC_STAT_TOP])
+            w = int(stats[largest_idx, cv2.CC_STAT_WIDTH])
+            h = int(stats[largest_idx, cv2.CC_STAT_HEIGHT])
+
+            bbox_area = max(1, w * h)
+            fill_ratio = largest_area / float(bbox_area)
+
+            if largest_ratio < self.MIN_LARGEST_PLATE_COMPONENT_RATIO:
+                return False, {
+                    "reason": "plate_component_too_small",
+                    "largest_plate_ratio": largest_ratio,
+                    "num_large_components": num_large_components,
+                    "fill_ratio": fill_ratio,
+                }
+
+            if num_large_components >= self.MAX_LARGE_PLATE_COMPONENTS and largest_ratio < 0.12:
+                return False, {
+                    "reason": "plate_too_fragmented",
+                    "largest_plate_ratio": largest_ratio,
+                    "num_large_components": num_large_components,
+                    "fill_ratio": fill_ratio,
+                }
+
+            if fill_ratio < self.MIN_PLATE_FILL_RATIO:
+                return False, {
+                    "reason": "plate_shape_invalid",
+                    "largest_plate_ratio": largest_ratio,
+                    "num_large_components": num_large_components,
+                    "fill_ratio": fill_ratio,
+                }
+
+            return True, {
+                "reason": "plate_shape_ok",
+                "largest_plate_ratio": largest_ratio,
+                "num_large_components": num_large_components,
+                "fill_ratio": fill_ratio,
+                "largest_bbox": [x, y, x + w, y + h],
+            }
+
+        except Exception as e:
+            return True, {"reason": "shape_gate_skipped", "error": str(e)}
+        
+
+    def _leftover_near_plate_gate(self, pred: np.ndarray) -> Tuple[bool, Dict[str, Any]]:
+        plate = (pred == self.PLATE)
+        lo = (pred == self.LEFTOVER)
+
+        leftover_pixels = int(lo.sum())
+        if leftover_pixels == 0:
+            return True, {
+                "reason": "no_leftover_for_near_gate",
+                "leftover_pixels": 0,
+            }
+
+        try:
+            import cv2
+
+            k = self.LEFTOVER_NEAR_PLATE_KERNEL
+            kernel = np.ones((k, k), np.uint8)
+
+            plate_dilated = cv2.dilate(plate.astype(np.uint8), kernel) > 0
+            near_pixels = int((lo & plate_dilated).sum())
+            near_ratio = near_pixels / float(leftover_pixels + 1e-6)
+
+            if near_ratio < self.MIN_LEFTOVER_NEAR_PLATE_RATIO:
+                return False, {
+                    "reason": "leftover_far_from_plate",
+                    "leftover_pixels": leftover_pixels,
+                    "near_pixels": near_pixels,
+                    "near_ratio": near_ratio,
+                    "min_near_ratio": self.MIN_LEFTOVER_NEAR_PLATE_RATIO,
+                }
+
+            return True, {
+                "reason": "leftover_near_plate_ok",
+                "leftover_pixels": leftover_pixels,
+                "near_pixels": near_pixels,
+                "near_ratio": near_ratio,
+            }
+
+        except Exception as e:
+            return True, {"reason": "near_gate_skipped", "error": str(e)}
+        
+
+        
     def _shot_quality_gate(self, pred: np.ndarray) -> Tuple[bool, Dict[str, Any]]:
         H, W = pred.shape
         img_area = H * W
@@ -88,6 +205,22 @@ class MMSegService:
                 "plate_area_ratio": plate_area_ratio,
                 "min_plate_area_ratio": self.MIN_PLATE_AREA_RATIO,
             }
+        
+        shape_ok, shape_diag = self._plate_shape_gate(pred)
+        if not shape_ok:
+            shape_diag.update({
+                "plate_pixels": plate_pixels,
+                "plate_area_ratio": plate_area_ratio,
+            })
+            return False, shape_diag
+
+        near_ok, near_diag = self._leftover_near_plate_gate(pred)
+        if not near_ok:
+            near_diag.update({
+                "plate_pixels": plate_pixels,
+                "plate_area_ratio": plate_area_ratio,
+            })
+            return False, near_diag
 
         area_mask = (plate | lo)
         ys, xs = np.where(area_mask)
@@ -204,7 +337,8 @@ class MMSegService:
 
         ok, diag = self._shot_quality_gate(pred)
         if not ok:
-            print("gate failed in calculate_leftover_ratio:", diag)
+            print("RETAKE in calculate_leftover_ratio:", diag)
+            return -1.0
 
         return self._empty_ratio(pred)
 
@@ -218,11 +352,12 @@ class MMSegService:
 
         ratio = self._empty_ratio(pred)
 
-        if not ok and reason == "no_plate":
+        if not ok:
             return {
                 "status": "RETAKE",
                 "empty_ratio": None,
-                "message": "그릇(식판)을 화면 중앙에 두고 다시 촬영해주세요.",
+                "leftover_ratio": None,
+                "message": "식판이 인식되지 않았습니다. 식판이 화면에 잘 보이게 다시 촬영해주세요.",
                 "diag": diag,
             }
 
