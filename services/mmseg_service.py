@@ -5,6 +5,7 @@ from typing import Any, Dict, Tuple
 
 import numpy as np
 from PIL import Image
+from typing import Optional
 
 import torch
 from mmseg.apis import init_model, inference_model
@@ -13,7 +14,7 @@ from mmseg.apis import init_model, inference_model
 class MMSegService:
     """MMSegmentation(Mask2Former) 기반 비움 비율 계산 서비스"""
 
-    def __init__(self, repo_root: str, checkpoint_path: str, device: str | None = None):
+    def __init__(self, repo_root: str, checkpoint_path: str, device: Optional[str] = None):
         """
         Args:
             repo_root: models/segmentation_plate_leftover-main (configs/, mmseg/ 있는 폴더)
@@ -43,8 +44,8 @@ class MMSegService:
         self.BG = 2
 
         # ------- 게이트/스코어 파라미터 -------
-        self.MIN_PLATE_AREA_RATIO = 0.08
-        self.MIN_PLATE_PIXELS = 5000
+        self.MIN_PLATE_AREA_RATIO = 0.12
+        self.MIN_PLATE_PIXELS = 10000
 
         self.MIN_LARGEST_PLATE_COMPONENT_RATIO = 0.06
         self.MAX_LARGE_PLATE_COMPONENTS = 4
@@ -141,9 +142,19 @@ class MMSegService:
 
         leftover_pixels = int(lo.sum())
         if leftover_pixels == 0:
+            plate_pixels = int(plate.sum())
+
+            # plate이 너무 작으면 가짜 plate 가능성 큼
+            if plate_pixels < 30000:
+                return False, {
+                    "reason": "plate_without_leftover_too_small",
+                    "plate_pixels": plate_pixels,
+                }
+
             return True, {
                 "reason": "no_leftover_for_near_gate",
                 "leftover_pixels": 0,
+                "plate_pixels": plate_pixels,
             }
 
         try:
